@@ -1,0 +1,1217 @@
+{
+  "schemaVersion": "1.0",
+  "independentCases": true,
+  "cases": [
+    {
+      "caseId": "buy-success",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1
+      }
+    },
+    {
+      "caseId": "buy-no-coins",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 0,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "NOT_ENOUGH_COINS",
+        "remainingCoins": 0,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-already-owned",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 2,
+        "purchasedBundles": [
+          {
+            "companyId": "AI",
+            "bundleIndex": 1
+          }
+        ]
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "ALREADY_VISIBLE",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1
+      }
+    },
+    {
+      "caseId": "buy-public",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-public",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 0
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "ALREADY_VISIBLE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-invalid-bundle",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-invalid",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 6
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_BUNDLE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-invalid-company",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-company",
+        "turn": 1,
+        "payload": {
+          "companyId": "UNKNOWN",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_COMPANY",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-wrong-phase",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "RESULT",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "WRONG_PHASE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-stale-turn",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 0,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "STALE_TURN",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-request-replay",
+      "operation": "BUY_INFORMATION_REPLAY",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1,
+        "sameResponse": true
+      }
+    },
+    {
+      "caseId": "pick-success",
+      "operation": "SELECT_COMPANY",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "SELECTION",
+        "currentPlayerId": "P1",
+        "ownCompanies": [],
+        "usedSeats": []
+      },
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "select-test",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingSeats": 1
+      }
+    },
+    {
+      "caseId": "pick-full",
+      "operation": "SELECT_COMPANY",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "SELECTION",
+        "currentPlayerId": "P1",
+        "ownCompanies": [],
+        "usedSeats": [
+          {
+            "companyId": "AI",
+            "count": 2
+          }
+        ]
+      },
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "select-test",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "COMPANY_FULL",
+        "remainingSeats": 0
+      }
+    },
+    {
+      "caseId": "pick-duplicate-company",
+      "operation": "SELECT_COMPANY",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "SELECTION",
+        "currentPlayerId": "P1",
+        "ownCompanies": [
+          "AI"
+        ],
+        "usedSeats": [
+          {
+            "companyId": "AI",
+            "count": 1
+          }
+        ]
+      },
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "select-test",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "DUPLICATE_COMPANY",
+        "remainingSeats": 1
+      }
+    },
+    {
+      "caseId": "pick-wrong-player",
+      "operation": "SELECT_COMPANY",
+      "setup": {
+        "senderPlayerId": "P2",
+        "phase": "SELECTION",
+        "currentPlayerId": "P1",
+        "ownCompanies": [],
+        "usedSeats": []
+      },
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "select-test",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "NOT_YOUR_TURN",
+        "remainingSeats": 2
+      }
+    },
+    {
+      "caseId": "order-success",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-success",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-too-short",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-too-short",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-too-many-intervals",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-too-many-intervals",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 0,
+                  "exitDay": 5
+                },
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                },
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "TOO_MANY_INTERVALS"
+      }
+    },
+    {
+      "caseId": "order-overlap",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-overlap",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 15
+                },
+                {
+                  "entryDay": 10,
+                  "exitDay": 20
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "OVERLAPPING_INTERVALS"
+      }
+    },
+    {
+      "caseId": "order-invalid-ratio",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-invalid-ratio",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 8000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 2000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_RATIO"
+      }
+    },
+    {
+      "caseId": "order-day-out-of-range",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-day-out-of-range",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 25,
+                  "exitDay": 31
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-unselected-company",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-unselected-company",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "BANK",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "COMPANY_NOT_SELECTED"
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-8",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-8",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 8
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-13",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-13",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-7",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-7",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 7
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-14",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-14",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 14
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-daily-25-to-30",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-25-to-30",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 25,
+                  "exitDay": 30
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-26-to-31",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-26-to-31",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 26,
+                  "exitDay": 31
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-day-zero-entry",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-day-zero-entry",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 0,
+                  "exitDay": 5
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-noninteger-day",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-noninteger-day",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3.5,
+                  "exitDay": 8.5
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-exit-before-entry",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-exit-before-entry",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 8,
+                  "exitDay": 3
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-missing-interval",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-missing-interval",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": []
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": false,
+        "errorCode": "MISSING_INTERVAL"
+      }
+    },
+    {
+      "caseId": "order-touching-intervals",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-touching-intervals",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 8
+                },
+                {
+                  "entryDay": 8,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "coin-carry-turn-2",
+      "operation": "ADVANCE_TURN",
+      "setup": {
+        "previousTurn": 1,
+        "coins": 2,
+        "lastGrantedTurn": 1
+      },
+      "request": {
+        "nextTurn": 2
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 5
+      }
+    },
+    {
+      "caseId": "coin-grant-switch-turn-6",
+      "operation": "ADVANCE_TURN",
+      "setup": {
+        "previousTurn": 5,
+        "coins": 2,
+        "lastGrantedTurn": 5
+      },
+      "request": {
+        "nextTurn": 6
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 7
+      }
+    },
+    {
+      "caseId": "coin-grant-replay",
+      "operation": "ADVANCE_TURN",
+      "setup": {
+        "previousTurn": 1,
+        "coins": 5,
+        "lastGrantedTurn": 2
+      },
+      "request": {
+        "nextTurn": 2
+      },
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 5
+      }
+    }
+  ]
+}

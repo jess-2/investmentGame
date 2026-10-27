@@ -1,0 +1,867 @@
+{
+  "packageVersion": "prototype-v2",
+  "schemaVersion": "1.0",
+  "role": "C",
+  "fixtureId": "basic-turn-v2",
+  "rulesVersion": "rules-v2",
+  "sourcePathBase": "workspace-root",
+  "validationScope": "정답 데이터와 앞으로 실행할 점검표다. 실제 Unity/C# 통과 선언이 아니다.",
+  "expectedSnapshots": {
+    "C_information_after.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/C_information_after.json",
+      "sourceSha256": "d1aa6d1bd31a42b39670661bddd43a6a7c18c956c11cd6146273ffa594173908",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "serverOnly": true,
+        "players": [
+          {
+            "playerId": "P1",
+            "coins": 2,
+            "purchasedBundles": [
+              {
+                "companyId": "AI",
+                "bundleIndex": 1
+              }
+            ],
+            "inventory": [],
+            "abilityId": "NONE"
+          },
+          {
+            "playerId": "P2",
+            "coins": 3,
+            "purchasedBundles": [],
+            "inventory": [],
+            "abilityId": "NONE"
+          },
+          {
+            "playerId": "P3",
+            "coins": 3,
+            "purchasedBundles": [],
+            "inventory": [],
+            "abilityId": "NONE"
+          },
+          {
+            "playerId": "P4",
+            "coins": 3,
+            "purchasedBundles": [],
+            "inventory": [],
+            "abilityId": "NONE"
+          }
+        ]
+      }
+    },
+    "D_P1_before_purchase.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P1_before_purchase.json",
+      "sourceSha256": "8030b5a4dccad04eff4f32aa29ba55c4121bdcedec8ecc4f2e1ec367edef8be1",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "recipientPlayerId": "P1",
+        "assets": 10000,
+        "coins": 3,
+        "ownInvestments": [],
+        "companies": [
+          {
+            "companyId": "AI",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -200,
+                  -400,
+                  -600,
+                  -800,
+                  -1000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -2000,
+                  -500,
+                  1000,
+                  2000,
+                  3000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "SPACE",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -100,
+                  -200,
+                  -300,
+                  -400,
+                  -500
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  1400,
+                  800,
+                  200,
+                  -400,
+                  -1000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  140,
+                  180,
+                  220,
+                  260,
+                  300
+                ]
+              },
+              {
+                "bundleIndex": 4,
+                "startDay": 21,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  380,
+                  360,
+                  340,
+                  320,
+                  300
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BANK",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  10,
+                  20,
+                  30,
+                  40,
+                  50
+                ]
+              },
+              {
+                "bundleIndex": 5,
+                "startDay": 26,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  210,
+                  220,
+                  230,
+                  240,
+                  250
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BIO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -400,
+                  -800,
+                  -1200,
+                  -1600,
+                  -2000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -3200,
+                  -1400,
+                  400,
+                  2200,
+                  4000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "AUTO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -40,
+                  120,
+                  280,
+                  440,
+                  600
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  200,
+                  300,
+                  400,
+                  500,
+                  600
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "D_P1_after_purchase.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P1_after_purchase.json",
+      "sourceSha256": "997ab57c02f2b7d73f7850231ac8fd9d87a7f47a8f64e0c18dfa7c0796c84f99",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "recipientPlayerId": "P1",
+        "assets": 10000,
+        "coins": 2,
+        "ownInvestments": [],
+        "companies": [
+          {
+            "companyId": "AI",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -200,
+                  -400,
+                  -600,
+                  -800,
+                  -1000
+                ]
+              },
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PURCHASED",
+                "dailyChangesBps": [
+                  -1500,
+                  -2000,
+                  -2500,
+                  -3000,
+                  -4000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -2000,
+                  -500,
+                  1000,
+                  2000,
+                  3000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "SPACE",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -100,
+                  -200,
+                  -300,
+                  -400,
+                  -500
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  1400,
+                  800,
+                  200,
+                  -400,
+                  -1000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  140,
+                  180,
+                  220,
+                  260,
+                  300
+                ]
+              },
+              {
+                "bundleIndex": 4,
+                "startDay": 21,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  380,
+                  360,
+                  340,
+                  320,
+                  300
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BANK",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  10,
+                  20,
+                  30,
+                  40,
+                  50
+                ]
+              },
+              {
+                "bundleIndex": 5,
+                "startDay": 26,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  210,
+                  220,
+                  230,
+                  240,
+                  250
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BIO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -400,
+                  -800,
+                  -1200,
+                  -1600,
+                  -2000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -3200,
+                  -1400,
+                  400,
+                  2200,
+                  4000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "AUTO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -40,
+                  120,
+                  280,
+                  440,
+                  600
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  200,
+                  300,
+                  400,
+                  500,
+                  600
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "D_P2_after_P1_purchase.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P2_after_P1_purchase.json",
+      "sourceSha256": "e1785e2b13dd7fbee19877452a99e110879645d3f79d91555a2e780de2204a47",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "recipientPlayerId": "P2",
+        "assets": 10000,
+        "coins": 3,
+        "ownInvestments": [],
+        "companies": [
+          {
+            "companyId": "AI",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -200,
+                  -400,
+                  -600,
+                  -800,
+                  -1000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -2000,
+                  -500,
+                  1000,
+                  2000,
+                  3000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "SPACE",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -100,
+                  -200,
+                  -300,
+                  -400,
+                  -500
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  1400,
+                  800,
+                  200,
+                  -400,
+                  -1000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  140,
+                  180,
+                  220,
+                  260,
+                  300
+                ]
+              },
+              {
+                "bundleIndex": 4,
+                "startDay": 21,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  380,
+                  360,
+                  340,
+                  320,
+                  300
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BANK",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  10,
+                  20,
+                  30,
+                  40,
+                  50
+                ]
+              },
+              {
+                "bundleIndex": 5,
+                "startDay": 26,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  210,
+                  220,
+                  230,
+                  240,
+                  250
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BIO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -400,
+                  -800,
+                  -1200,
+                  -1600,
+                  -2000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -3200,
+                  -1400,
+                  400,
+                  2200,
+                  4000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "AUTO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -40,
+                  120,
+                  280,
+                  440,
+                  600
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  200,
+                  300,
+                  400,
+                  500,
+                  600
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "referenceCases": [
+    {
+      "caseId": "buy-success",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1
+      }
+    },
+    {
+      "caseId": "buy-no-coins",
+      "expected": {
+        "success": false,
+        "errorCode": "NOT_ENOUGH_COINS",
+        "remainingCoins": 0,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-already-owned",
+      "expected": {
+        "success": false,
+        "errorCode": "ALREADY_VISIBLE",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1
+      }
+    },
+    {
+      "caseId": "buy-public",
+      "expected": {
+        "success": false,
+        "errorCode": "ALREADY_VISIBLE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-invalid-bundle",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_BUNDLE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-invalid-company",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_COMPANY",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-wrong-phase",
+      "expected": {
+        "success": false,
+        "errorCode": "WRONG_PHASE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-stale-turn",
+      "expected": {
+        "success": false,
+        "errorCode": "STALE_TURN",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-request-replay",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1,
+        "sameResponse": true
+      }
+    },
+    {
+      "caseId": "coin-carry-turn-2",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 5
+      }
+    },
+    {
+      "caseId": "coin-grant-switch-turn-6",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 7
+      }
+    },
+    {
+      "caseId": "coin-grant-replay",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 5
+      }
+    }
+  ],
+  "integrationChecks": [
+    {
+      "checkId": "C-filter-views",
+      "purpose": "개인 정보 분리",
+      "setup": "P1만 AI bundle1 구매",
+      "action": "P1/P2뷰 생성",
+      "expected": {
+        "P1Coins": 2,
+        "P2Coins": 3,
+        "P1AiBundleIndices": [
+          0,
+          1,
+          2
+        ],
+        "P2AiBundleIndices": [
+          0,
+          2
+        ]
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-atomic-failure",
+      "purpose": "원본 조회 실패시 무변경",
+      "setup": "코인3개, 미구매, 시장 조회가 실패하도록 주입",
+      "action": "구매 처리",
+      "expected": {
+        "coins": 3,
+        "purchasedBundleCount": 0
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-immutable-market",
+      "purpose": "원본 불변성",
+      "setup": "개인뷰 생성 완료",
+      "action": "반환된 배열을 수정",
+      "expected": "B 원본 주가와 타인뷰는 변하지 않음",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-turn-reset",
+      "purpose": "턴별 구매원장",
+      "setup": "1턴 P1이 AI bundle1 구매",
+      "action": "2턴으로 이동 후 개인뷰 생성",
+      "expected": "코인은 이월+지급, 1턴 구매권으로2턴 비공개 AI bundle1을 보지 못함",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-grant-initialized",
+      "purpose": "로드시 중복 지급 방지",
+      "setup": "C_information_before는이미1턴 지급완료",
+      "action": "1턴 GrantTurnCoins 재호출",
+      "expected": {
+        "coinsPerPlayer": 3
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-concurrent-buy",
+      "purpose": "잔액1개 경합",
+      "setup": "코인1개, 미열람2묶음",
+      "action": "A를 통해 구매2개 동시처리",
+      "expected": {
+        "successCount": 1,
+        "purchasedBundleCount": 1,
+        "remainingCoins": 0
+      },
+      "verification": "A와 직렬 처리 통합",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-shared-public",
+      "purpose": "동일 무료정보",
+      "setup": "시장 시작·전원 미구매",
+      "action": "4명 개인뷰 생성",
+      "expected": "각 기업의PUBLIC2묶음 인덱스와 값이 전원 동일; 개인별재추첨없음",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "C-no-full-market",
+      "purpose": "반환 공개범위",
+      "setup": "미구매 상태",
+      "action": "개인뷰/실패응답 생성",
+      "expected": "개인뷰에는 허용된 묶음만, 실패응답에는 미공개 주가 없음",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    }
+  ],
+  "exchangeResults": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/exchange_examples.json",
+    "sourceSha256": "48a3ab4dff0ea1b4cb1aaa77e4ce36aaca053f6a39fda59799bd89df7d15bd84",
+    "data": {
+      "examples": [
+        {
+          "requestId": "info-001",
+          "recipientPlayerId": "P1",
+          "response": {
+            "type": "BUY_INFORMATION_RESULT",
+            "requestId": "info-001",
+            "turn": 1,
+            "success": true,
+            "errorCode": "",
+            "payload": {
+              "remainingCoins": 2,
+              "companyId": "AI",
+              "bundleIndex": 1,
+              "startDay": 6,
+              "dailyChangesBps": [
+                -1500,
+                -2000,
+                -2500,
+                -3000,
+                -4000
+              ]
+            }
+          },
+          "broadcast": false
+        }
+      ]
+    }
+  }
+}

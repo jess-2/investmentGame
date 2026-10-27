@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0",
+  "transportMetadataIsNotRequestPayload": true,
+  "examples": [
+    {
+      "senderPlayerId": "P1",
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      },
+      "recipientPlayerId": "P1",
+      "response": {
+        "type": "BUY_INFORMATION_RESULT",
+        "requestId": "info-001",
+        "turn": 1,
+        "success": true,
+        "errorCode": "",
+        "payload": {
+          "remainingCoins": 2,
+          "companyId": "AI",
+          "bundleIndex": 1,
+          "startDay": 6,
+          "dailyChangesBps": [
+            -1500,
+            -2000,
+            -2500,
+            -3000,
+            -4000
+          ]
+        }
+      },
+      "broadcast": false
+    },
+    {
+      "senderPlayerId": "P1",
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-001",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "recipientPlayerId": "P1",
+      "response": {
+        "type": "SUBMIT_INVESTMENT_RESULT",
+        "requestId": "order-001",
+        "turn": 1,
+        "success": true,
+        "errorCode": "",
+        "payload": {
+          "locked": true,
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "broadcast": false
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "serverOnly": true,
+  "players": [
+    {
+      "playerId": "P1",
+      "coins": 2,
+      "purchasedBundles": [
+        {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      ],
+      "inventory": [],
+      "abilityId": "NONE"
+    },
+    {
+      "playerId": "P2",
+      "coins": 3,
+      "purchasedBundles": [],
+      "inventory": [],
+      "abilityId": "NONE"
+    },
+    {
+      "playerId": "P3",
+      "coins": 3,
+      "purchasedBundles": [],
+      "inventory": [],
+      "abilityId": "NONE"
+    },
+    {
+      "playerId": "P4",
+      "coins": 3,
+      "purchasedBundles": [],
+      "inventory": [],
+      "abilityId": "NONE"
+    }
+  ]
+}

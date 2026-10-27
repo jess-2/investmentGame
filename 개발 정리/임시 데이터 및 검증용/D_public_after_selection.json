@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0",
+  "roomId": "DEV-ROOM-001",
+  "turn": 1,
+  "phase": "INVESTMENT",
+  "selectionIndex": 8,
+  "currentPlayerId": "",
+  "serverElapsedSeconds": 74,
+  "phaseEndsAtServerSeconds": 97,
+  "selectionDeadlineAtServerSeconds": 0,
+  "players": [
+    {
+      "playerId": "P1",
+      "displayName": "Player 1",
+      "connected": true,
+      "ready": true
+    },
+    {
+      "playerId": "P2",
+      "displayName": "Player 2",
+      "connected": true,
+      "ready": true
+    },
+    {
+      "playerId": "P3",
+      "displayName": "Player 3",
+      "connected": true,
+      "ready": true
+    },
+    {
+      "playerId": "P4",
+      "displayName": "Player 4",
+      "connected": true,
+      "ready": true
+    }
+  ],
+  "companySeats": [
+    {
+      "companyId": "AI",
+      "remainingSeats": 0
+    },
+    {
+      "companyId": "SPACE",
+      "remainingSeats": 1
+    },
+    {
+      "companyId": "FOOD",
+      "remainingSeats": 1
+    },
+    {
+      "companyId": "BANK",
+      "remainingSeats": 1
+    },
+    {
+      "companyId": "BIO",
+      "remainingSeats": 0
+    },
+    {
+      "companyId": "AUTO",
+      "remainingSeats": 1
+    }
+  ]
+}

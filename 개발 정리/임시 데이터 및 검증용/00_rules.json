@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureId": "basic-turn-v2",
+  "rulesVersion": "rules-v2",
+  "playerCount": 4,
+  "totalTurns": 10,
+  "daysPerTurn": 30,
+  "bundleSizeDays": 5,
+  "initialAssets": 10000,
+  "initialCoinsAfterTurnGrant": 3,
+  "informationBundleCost": 1,
+  "maxPlayersPerCompany": 2,
+  "firstCompanyWeightOptionsBps": [
+    5000,
+    6000,
+    7000
+  ],
+  "maxIntervalsPerCompany": 2,
+  "minHoldingDays": 5,
+  "maxHoldingDays": 10,
+  "allowOverlappingIntervals": false,
+  "reinvestIntervalProfit": false,
+  "coinGrantIncreaseTurn": 6,
+  "earlyCoinGrant": 3,
+  "lateCoinGrant": 5,
+  "turnDurationSeconds": 120,
+  "timerMode": "MANUAL_FOR_FIXTURE",
+  "dateSelectionStepDays": 1,
+  "minEntryDay": 0,
+  "maxExitDay": 30,
+  "secondCompanyGetsRemainder": true,
+  "minimumCompanyReturnBps": -10000,
+  "minimumAssets": 0,
+  "eliminateBankruptPlayer": false,
+  "comebackGrant": 1000,
+  "normalPhaseSeconds": {
+    "AUCTION": 0,
+    "INFO": 50,
+    "SELECTION": 32,
+    "INVESTMENT": 23,
+    "MARKET_REVEAL": 10,
+    "RESULT": 5
+  },
+  "eventPhaseSeconds": {
+    "AUCTION": 15,
+    "INFO": 35,
+    "SELECTION": 32,
+    "INVESTMENT": 23,
+    "MARKET_REVEAL": 10,
+    "RESULT": 5
+  },
+  "selectionSecondsPerPick": 4,
+  "defaultCompanyPriority": [
+    "BANK",
+    "FOOD",
+    "AUTO",
+    "AI",
+    "SPACE",
+    "BIO"
+  ],
+  "defaultInvestment": {
+    "weightsBps": [
+      5000,
+      5000
+    ],
+    "intervals": [
+      {
+        "entryDay": 0,
+        "exitDay": 5
+      }
+    ]
+  },
+  "auctionTurns": [
+    3,
+    6,
+    9
+  ],
+  "auctionBidCapBps": 1000,
+  "freePassBidMultiplierPercent": 125,
+  "shopPurchasesPerTurn": 1,
+  "inventoryCapacity": 3,
+  "inventoryOverflowCoins": 1,
+  "shopCostBps": {
+    "AMPLIFIER": 300,
+    "SHORT": 400,
+    "SHIELD": 200,
+    "EXPLOSION": 500,
+    "BLACKBOX": 200,
+    "DISTORT": 200,
+    "STEAL": 300,
+    "REDUCE_RETURN": 400
+  },
+  "usesPerTurn": {
+    "FINANCIAL": 1,
+    "INFORMATION": 1,
+    "ATTACK": 1
+  },
+  "itemEffects": {
+    "amplifierMultiplier": 2,
+    "shieldFlatBandBps": 300,
+    "shieldPremiumBps": 500,
+    "shieldLossMultiplierBps": 5000,
+    "explosionThresholdBps": 1500,
+    "explosionBonusBps": 5000,
+    "gamblerExplosionBonusBps": 6000,
+    "distortSeconds": 10,
+    "reduceReturnBps": 1000,
+    "combinedAttackCapBps": 1500,
+    "hunterReductionBps": 500
+  },
+  "abilityEffects": {
+    "politicianCooldownTurns": 3,
+    "operatorTransferBps": 2500,
+    "hunterTransferBps": 5000,
+    "gamblerMultiplierBps": 12000,
+    "informationBrokerFreeBundlesPerTurn": 1,
+    "informationBrokerBlackboxBundles": 2
+  },
+  "participantReconnectSeconds": 30,
+  "maxNewRequestsPerPlayerPerTurn": 256,
+  "marketGeneration": {
+    "distribution": "UNIFORM_INTEGER_BPS",
+    "dailyStepGrowthBpsPerTurn": 500,
+    "dailyStepBps": {
+      "AI": 800,
+      "SPACE": 800,
+      "FOOD": 120,
+      "BANK": 80,
+      "BIO": 1500,
+      "AUTO": 350
+    },
+    "absoluteChangeCapBps": {
+      "AI": 5000,
+      "SPACE": 5000,
+      "FOOD": 800,
+      "BANK": 600,
+      "BIO": 8000,
+      "AUTO": 2000
+    }
+  },
+  "rateUnit": "BASIS_POINTS",
+  "rounding": "TOWARD_ZERO_PER_COMPANY",
+  "settlementFormula": "allocatedAssets * sum(exitBps - entryBps) / 10000",
+  "fixtureOnlyPolicies": [
+    "Fixed player order, hand-crafted market and free-bundle positions exist only for reproducibility.",
+    "MANUAL_FOR_FIXTURE pauses automatic progression; production phase durations and defaults are defined in rules-v2.",
+    "No items, abilities, auctions or comeback grants are exercised by the base one-turn fixture.",
+    "All other listed game settings are the adopted initial balance rules, not unresolved assumptions."
+  ],
+  "companies": [
+    {
+      "companyId": "AI",
+      "displayName": "AI",
+      "volatility": "HIGH",
+      "gamblerEligible": true
+    },
+    {
+      "companyId": "SPACE",
+      "displayName": "SPACE",
+      "volatility": "HIGH",
+      "gamblerEligible": true
+    },
+    {
+      "companyId": "FOOD",
+      "displayName": "FOOD",
+      "volatility": "LOW",
+      "gamblerEligible": false
+    },
+    {
+      "companyId": "BANK",
+      "displayName": "BANK",
+      "volatility": "LOW",
+      "gamblerEligible": false
+    },
+    {
+      "companyId": "BIO",
+      "displayName": "BIO",
+      "volatility": "EXTREME",
+      "gamblerEligible": true
+    },
+    {
+      "companyId": "AUTO",
+      "displayName": "AUTO",
+      "volatility": "MEDIUM",
+      "gamblerEligible": false
+    }
+  ]
+}
