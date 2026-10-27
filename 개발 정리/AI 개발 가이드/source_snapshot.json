@@ -1,0 +1,194 @@
+{
+  "packageVersion": "prototype-v2",
+  "rulesVersion": "rules-v2",
+  "sourceDate": "2026-10-25",
+  "note": "내용이 달라지면 재검토한다. 이 SHA는 파일 출처 검사용이며 실제 네트워크 프로토콜 버전이 아니다.",
+  "sources": [
+    {
+      "sourcePath": "개발 정리/참고사항/전체 프로세스 정리.md",
+      "sha256": "48c76d98144b07a8f7dbda9aeb42d2900cbc4a4fb851c65f553d5164b576ea9c",
+      "kind": "planning-source"
+    },
+    {
+      "sourcePath": "7주차 발표정리/7주차 정리.md",
+      "sha256": "a1f8c49d9a29f05477689af2387c62498c70f6e1b69e2e1c89fe23a85b2a02c8",
+      "kind": "planning-source"
+    },
+    {
+      "sourcePath": "요구사항명세서/요구사항명세서.MD",
+      "sha256": "a718423e67effd5b5aa8009bf3b59724caf8683ffd650e44c57bea0c275d04ed",
+      "kind": "planning-source"
+    },
+    {
+      "sourcePath": "7주차 발표정리/7주차 발표.pptx",
+      "sha256": "a0afb6f44b0734692c131e41def4888fc1e4ea9328287946d2238493ef88cf34",
+      "kind": "planning-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/00_rules.json",
+      "sha256": "62f7efb5bf3e72400518840ed228b00d20a209e8af9ebf58c9fae6f4c74c1438",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/A_room_initial.json",
+      "sha256": "64966ee355846685553abaff1c453606909a16f33344eb2d0011b9897186332e",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/A_selection_replay.json",
+      "sha256": "0fd80a9d00f597b63a759bb6bc62a813457203017ad2cc44fe34251609cbf406",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/B_investment_orders.json",
+      "sha256": "b68e98bd83e7eaf4e801bad5cf6b64524c28b00fd4ba0645f509c32e73116807",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/B_market_server.json",
+      "sha256": "d85feb0f46126a37d5f549e09ee2d4fe2e6ee01112488f90d7d11d676207ee61",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/B_settlement_expected.json",
+      "sha256": "fdb597fd2fb4e31adcef860977762a4e1a8c44059ebd409ab1253e83b2bf9f8a",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/C_information_after.json",
+      "sha256": "d1aa6d1bd31a42b39670661bddd43a6a7c18c956c11cd6146273ffa594173908",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/C_information_before.json",
+      "sha256": "35a33bf5e3da3ff230aa6d3f2a081c07ba71ac71be2799a2fa8b90569bed01de",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P1_after_purchase.json",
+      "sha256": "997ab57c02f2b7d73f7850231ac8fd9d87a7f47a8f64e0c18dfa7c0796c84f99",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P1_before_purchase.json",
+      "sha256": "8030b5a4dccad04eff4f32aa29ba55c4121bdcedec8ecc4f2e1ec367edef8be1",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P2_after_P1_purchase.json",
+      "sha256": "e1785e2b13dd7fbee19877452a99e110879645d3f79d91555a2e780de2204a47",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_public_after_selection.json",
+      "sha256": "a2ba288b5efc450d4cfdb04638ec29dba0105fd4f8968f17933e3854a466a428",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_public_initial.json",
+      "sha256": "19fead212bc397bbb9b3284a666e0201236de4bffac7e2641f6daddbf7176cce",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_scoreboard_expected.json",
+      "sha256": "2a3071195ba675396a8c2b47d42c6ce34d6a9887966b3a4ef857abe840e4bf57",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/exchange_examples.json",
+      "sha256": "48a3ab4dff0ea1b4cb1aaa77e4ce36aaca053f6a39fda59799bd89df7d15bd84",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/validation_cases.json",
+      "sha256": "0f6ae784ea37ab90160897e62543bcc9f5f0d86d9e18608f259d64a018843504",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/generate_fixtures.py",
+      "sha256": "2a42b79ae3316df917a92b34180e259fa122fcc6e2f597262d8c4424ef7bd100",
+      "kind": "fixture-source"
+    },
+    {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/validate_fixtures.py",
+      "sha256": "26a96378b4e1099677dcd2f6aaf0f770b94596118de60a257f88f508310f258c",
+      "kind": "fixture-source"
+    }
+  ],
+  "coverage": {
+    "A": [
+      "buy-wrong-phase",
+      "buy-stale-turn",
+      "buy-request-replay",
+      "pick-wrong-player",
+      "coin-grant-replay"
+    ],
+    "B": [
+      "pick-success",
+      "pick-full",
+      "pick-duplicate-company",
+      "pick-wrong-player",
+      "order-success",
+      "order-too-short",
+      "order-too-many-intervals",
+      "order-overlap",
+      "order-invalid-ratio",
+      "order-day-out-of-range",
+      "order-unselected-company",
+      "order-daily-3-to-8",
+      "order-daily-3-to-13",
+      "order-daily-3-to-7",
+      "order-daily-3-to-14",
+      "order-daily-25-to-30",
+      "order-daily-26-to-31",
+      "order-day-zero-entry",
+      "order-noninteger-day",
+      "order-exit-before-entry",
+      "order-missing-interval",
+      "order-touching-intervals"
+    ],
+    "C": [
+      "buy-success",
+      "buy-no-coins",
+      "buy-already-owned",
+      "buy-public",
+      "buy-invalid-bundle",
+      "buy-invalid-company",
+      "buy-wrong-phase",
+      "buy-stale-turn",
+      "buy-request-replay",
+      "coin-carry-turn-2",
+      "coin-grant-switch-turn-6",
+      "coin-grant-replay"
+    ],
+    "D": [
+      "buy-success",
+      "buy-no-coins",
+      "buy-already-owned",
+      "buy-public",
+      "buy-invalid-bundle",
+      "buy-invalid-company",
+      "buy-wrong-phase",
+      "buy-stale-turn",
+      "buy-request-replay",
+      "order-success",
+      "order-too-short",
+      "order-too-many-intervals",
+      "order-overlap",
+      "order-invalid-ratio",
+      "order-day-out-of-range",
+      "order-unselected-company",
+      "order-daily-3-to-8",
+      "order-daily-3-to-13",
+      "order-daily-3-to-7",
+      "order-daily-3-to-14",
+      "order-daily-25-to-30",
+      "order-daily-26-to-31",
+      "order-day-zero-entry",
+      "order-noninteger-day",
+      "order-exit-before-entry",
+      "order-missing-interval",
+      "order-touching-intervals"
+    ]
+  }
+}

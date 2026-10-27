@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "serverOnly": true,
+  "players": [
+    {
+      "playerId": "P1",
+      "startingAssets": 10000,
+      "profit": 4280,
+      "endingAssets": 14280,
+      "turnReturnBps": 4280,
+      "companyProfits": [
+        {
+          "companyId": "AI",
+          "profit": 4200
+        },
+        {
+          "companyId": "FOOD",
+          "profit": 80
+        }
+      ]
+    },
+    {
+      "playerId": "P2",
+      "startingAssets": 10000,
+      "profit": 1080,
+      "endingAssets": 11080,
+      "turnReturnBps": 1080,
+      "companyProfits": [
+        {
+          "companyId": "SPACE",
+          "profit": 1050
+        },
+        {
+          "companyId": "BANK",
+          "profit": 30
+        }
+      ]
+    },
+    {
+      "playerId": "P3",
+      "startingAssets": 10000,
+      "profit": -1100,
+      "endingAssets": 8900,
+      "turnReturnBps": -1100,
+      "companyProfits": [
+        {
+          "companyId": "BIO",
+          "profit": -1500
+        },
+        {
+          "companyId": "AUTO",
+          "profit": 400
+        }
+      ]
+    },
+    {
+      "playerId": "P4",
+      "startingAssets": 10000,
+      "profit": 2750,
+      "endingAssets": 12750,
+      "turnReturnBps": 2750,
+      "companyProfits": [
+        {
+          "companyId": "AI",
+          "profit": 4250
+        },
+        {
+          "companyId": "BIO",
+          "profit": -1500
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "phase": "RESULT",
+  "rankingFinalForTurn": true,
+  "rows": [
+    {
+      "rank": 1,
+      "playerId": "P1",
+      "totalAssets": 14280,
+      "turnReturnBps": 4280,
+      "cumulativeProfit": 4280,
+      "cumulativeReturnBps": 4280,
+      "returnHistory": [
+        {
+          "turn": 0,
+          "returnBps": 0
+        },
+        {
+          "turn": 1,
+          "returnBps": 4280
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "playerId": "P4",
+      "totalAssets": 12750,
+      "turnReturnBps": 2750,
+      "cumulativeProfit": 2750,
+      "cumulativeReturnBps": 2750,
+      "returnHistory": [
+        {
+          "turn": 0,
+          "returnBps": 0
+        },
+        {
+          "turn": 1,
+          "returnBps": 2750
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "playerId": "P2",
+      "totalAssets": 11080,
+      "turnReturnBps": 1080,
+      "cumulativeProfit": 1080,
+      "cumulativeReturnBps": 1080,
+      "returnHistory": [
+        {
+          "turn": 0,
+          "returnBps": 0
+        },
+        {
+          "turn": 1,
+          "returnBps": 1080
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "playerId": "P3",
+      "totalAssets": 8900,
+      "turnReturnBps": -1100,
+      "cumulativeProfit": -1100,
+      "cumulativeReturnBps": -1100,
+      "returnHistory": [
+        {
+          "turn": 0,
+          "returnBps": 0
+        },
+        {
+          "turn": 1,
+          "returnBps": -1100
+        }
+      ]
+    }
+  ]
+}

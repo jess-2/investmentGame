@@ -1,0 +1,2142 @@
+{
+  "packageVersion": "prototype-v2",
+  "schemaVersion": "1.0",
+  "role": "D",
+  "fixtureId": "basic-turn-v2",
+  "rulesVersion": "rules-v2",
+  "sourcePathBase": "workspace-root",
+  "instructions": "inputs는 실제 입력, referenceCases는 독립 초기 상태와 요청이다. 기대값은 통과기준.json에 있다.",
+  "inputs": {
+    "00_rules.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/00_rules.json",
+      "sourceSha256": "62f7efb5bf3e72400518840ed228b00d20a209e8af9ebf58c9fae6f4c74c1438",
+      "data": {
+        "schemaVersion": "1.0",
+        "fixtureId": "basic-turn-v2",
+        "rulesVersion": "rules-v2",
+        "playerCount": 4,
+        "totalTurns": 10,
+        "daysPerTurn": 30,
+        "bundleSizeDays": 5,
+        "initialAssets": 10000,
+        "initialCoinsAfterTurnGrant": 3,
+        "informationBundleCost": 1,
+        "maxPlayersPerCompany": 2,
+        "firstCompanyWeightOptionsBps": [
+          5000,
+          6000,
+          7000
+        ],
+        "maxIntervalsPerCompany": 2,
+        "minHoldingDays": 5,
+        "maxHoldingDays": 10,
+        "allowOverlappingIntervals": false,
+        "reinvestIntervalProfit": false,
+        "coinGrantIncreaseTurn": 6,
+        "earlyCoinGrant": 3,
+        "lateCoinGrant": 5,
+        "turnDurationSeconds": 120,
+        "timerMode": "MANUAL_FOR_FIXTURE",
+        "dateSelectionStepDays": 1,
+        "minEntryDay": 0,
+        "maxExitDay": 30,
+        "secondCompanyGetsRemainder": true,
+        "minimumCompanyReturnBps": -10000,
+        "minimumAssets": 0,
+        "eliminateBankruptPlayer": false,
+        "comebackGrant": 1000,
+        "normalPhaseSeconds": {
+          "AUCTION": 0,
+          "INFO": 50,
+          "SELECTION": 32,
+          "INVESTMENT": 23,
+          "MARKET_REVEAL": 10,
+          "RESULT": 5
+        },
+        "eventPhaseSeconds": {
+          "AUCTION": 15,
+          "INFO": 35,
+          "SELECTION": 32,
+          "INVESTMENT": 23,
+          "MARKET_REVEAL": 10,
+          "RESULT": 5
+        },
+        "selectionSecondsPerPick": 4,
+        "defaultCompanyPriority": [
+          "BANK",
+          "FOOD",
+          "AUTO",
+          "AI",
+          "SPACE",
+          "BIO"
+        ],
+        "defaultInvestment": {
+          "weightsBps": [
+            5000,
+            5000
+          ],
+          "intervals": [
+            {
+              "entryDay": 0,
+              "exitDay": 5
+            }
+          ]
+        },
+        "auctionTurns": [
+          3,
+          6,
+          9
+        ],
+        "auctionBidCapBps": 1000,
+        "freePassBidMultiplierPercent": 125,
+        "shopPurchasesPerTurn": 1,
+        "inventoryCapacity": 3,
+        "inventoryOverflowCoins": 1,
+        "shopCostBps": {
+          "AMPLIFIER": 300,
+          "SHORT": 400,
+          "SHIELD": 200,
+          "EXPLOSION": 500,
+          "BLACKBOX": 200,
+          "DISTORT": 200,
+          "STEAL": 300,
+          "REDUCE_RETURN": 400
+        },
+        "usesPerTurn": {
+          "FINANCIAL": 1,
+          "INFORMATION": 1,
+          "ATTACK": 1
+        },
+        "itemEffects": {
+          "amplifierMultiplier": 2,
+          "shieldFlatBandBps": 300,
+          "shieldPremiumBps": 500,
+          "shieldLossMultiplierBps": 5000,
+          "explosionThresholdBps": 1500,
+          "explosionBonusBps": 5000,
+          "gamblerExplosionBonusBps": 6000,
+          "distortSeconds": 10,
+          "reduceReturnBps": 1000,
+          "combinedAttackCapBps": 1500,
+          "hunterReductionBps": 500
+        },
+        "abilityEffects": {
+          "politicianCooldownTurns": 3,
+          "operatorTransferBps": 2500,
+          "hunterTransferBps": 5000,
+          "gamblerMultiplierBps": 12000,
+          "informationBrokerFreeBundlesPerTurn": 1,
+          "informationBrokerBlackboxBundles": 2
+        },
+        "participantReconnectSeconds": 30,
+        "maxNewRequestsPerPlayerPerTurn": 256,
+        "marketGeneration": {
+          "distribution": "UNIFORM_INTEGER_BPS",
+          "dailyStepGrowthBpsPerTurn": 500,
+          "dailyStepBps": {
+            "AI": 800,
+            "SPACE": 800,
+            "FOOD": 120,
+            "BANK": 80,
+            "BIO": 1500,
+            "AUTO": 350
+          },
+          "absoluteChangeCapBps": {
+            "AI": 5000,
+            "SPACE": 5000,
+            "FOOD": 800,
+            "BANK": 600,
+            "BIO": 8000,
+            "AUTO": 2000
+          }
+        },
+        "rateUnit": "BASIS_POINTS",
+        "rounding": "TOWARD_ZERO_PER_COMPANY",
+        "settlementFormula": "allocatedAssets * sum(exitBps - entryBps) / 10000",
+        "fixtureOnlyPolicies": [
+          "Fixed player order, hand-crafted market and free-bundle positions exist only for reproducibility.",
+          "MANUAL_FOR_FIXTURE pauses automatic progression; production phase durations and defaults are defined in rules-v2.",
+          "No items, abilities, auctions or comeback grants are exercised by the base one-turn fixture.",
+          "All other listed game settings are the adopted initial balance rules, not unresolved assumptions."
+        ],
+        "companies": [
+          {
+            "companyId": "AI",
+            "displayName": "AI",
+            "volatility": "HIGH",
+            "gamblerEligible": true
+          },
+          {
+            "companyId": "SPACE",
+            "displayName": "SPACE",
+            "volatility": "HIGH",
+            "gamblerEligible": true
+          },
+          {
+            "companyId": "FOOD",
+            "displayName": "FOOD",
+            "volatility": "LOW",
+            "gamblerEligible": false
+          },
+          {
+            "companyId": "BANK",
+            "displayName": "BANK",
+            "volatility": "LOW",
+            "gamblerEligible": false
+          },
+          {
+            "companyId": "BIO",
+            "displayName": "BIO",
+            "volatility": "EXTREME",
+            "gamblerEligible": true
+          },
+          {
+            "companyId": "AUTO",
+            "displayName": "AUTO",
+            "volatility": "MEDIUM",
+            "gamblerEligible": false
+          }
+        ]
+      }
+    },
+    "D_public_initial.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_public_initial.json",
+      "sourceSha256": "19fead212bc397bbb9b3284a666e0201236de4bffac7e2641f6daddbf7176cce",
+      "data": {
+        "schemaVersion": "1.0",
+        "roomId": "DEV-ROOM-001",
+        "turn": 1,
+        "phase": "INFO",
+        "selectionIndex": 0,
+        "currentPlayerId": "",
+        "serverElapsedSeconds": 0,
+        "phaseEndsAtServerSeconds": 50,
+        "selectionDeadlineAtServerSeconds": 0,
+        "players": [
+          {
+            "playerId": "P1",
+            "displayName": "Player 1",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P2",
+            "displayName": "Player 2",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P3",
+            "displayName": "Player 3",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P4",
+            "displayName": "Player 4",
+            "connected": true,
+            "ready": true
+          }
+        ],
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    "D_P1_before_purchase.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P1_before_purchase.json",
+      "sourceSha256": "8030b5a4dccad04eff4f32aa29ba55c4121bdcedec8ecc4f2e1ec367edef8be1",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "recipientPlayerId": "P1",
+        "assets": 10000,
+        "coins": 3,
+        "ownInvestments": [],
+        "companies": [
+          {
+            "companyId": "AI",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -200,
+                  -400,
+                  -600,
+                  -800,
+                  -1000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -2000,
+                  -500,
+                  1000,
+                  2000,
+                  3000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "SPACE",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -100,
+                  -200,
+                  -300,
+                  -400,
+                  -500
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  1400,
+                  800,
+                  200,
+                  -400,
+                  -1000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  140,
+                  180,
+                  220,
+                  260,
+                  300
+                ]
+              },
+              {
+                "bundleIndex": 4,
+                "startDay": 21,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  380,
+                  360,
+                  340,
+                  320,
+                  300
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BANK",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  10,
+                  20,
+                  30,
+                  40,
+                  50
+                ]
+              },
+              {
+                "bundleIndex": 5,
+                "startDay": 26,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  210,
+                  220,
+                  230,
+                  240,
+                  250
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BIO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -400,
+                  -800,
+                  -1200,
+                  -1600,
+                  -2000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -3200,
+                  -1400,
+                  400,
+                  2200,
+                  4000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "AUTO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -40,
+                  120,
+                  280,
+                  440,
+                  600
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  200,
+                  300,
+                  400,
+                  500,
+                  600
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "D_P2_after_P1_purchase.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_P2_after_P1_purchase.json",
+      "sourceSha256": "e1785e2b13dd7fbee19877452a99e110879645d3f79d91555a2e780de2204a47",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "recipientPlayerId": "P2",
+        "assets": 10000,
+        "coins": 3,
+        "ownInvestments": [],
+        "companies": [
+          {
+            "companyId": "AI",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -200,
+                  -400,
+                  -600,
+                  -800,
+                  -1000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -2000,
+                  -500,
+                  1000,
+                  2000,
+                  3000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "SPACE",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -100,
+                  -200,
+                  -300,
+                  -400,
+                  -500
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  1400,
+                  800,
+                  200,
+                  -400,
+                  -1000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  140,
+                  180,
+                  220,
+                  260,
+                  300
+                ]
+              },
+              {
+                "bundleIndex": 4,
+                "startDay": 21,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  380,
+                  360,
+                  340,
+                  320,
+                  300
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BANK",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  10,
+                  20,
+                  30,
+                  40,
+                  50
+                ]
+              },
+              {
+                "bundleIndex": 5,
+                "startDay": 26,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  210,
+                  220,
+                  230,
+                  240,
+                  250
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "BIO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 0,
+                "startDay": 1,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -400,
+                  -800,
+                  -1200,
+                  -1600,
+                  -2000
+                ]
+              },
+              {
+                "bundleIndex": 2,
+                "startDay": 11,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -3200,
+                  -1400,
+                  400,
+                  2200,
+                  4000
+                ]
+              }
+            ]
+          },
+          {
+            "companyId": "AUTO",
+            "visibleBundles": [
+              {
+                "bundleIndex": 1,
+                "startDay": 6,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  -40,
+                  120,
+                  280,
+                  440,
+                  600
+                ]
+              },
+              {
+                "bundleIndex": 3,
+                "startDay": 16,
+                "source": "PUBLIC",
+                "dailyChangesBps": [
+                  200,
+                  300,
+                  400,
+                  500,
+                  600
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "referenceCases": [
+    {
+      "caseId": "buy-success",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-no-coins",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 0,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-already-owned",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 2,
+        "purchasedBundles": [
+          {
+            "companyId": "AI",
+            "bundleIndex": 1
+          }
+        ]
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-public",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-public",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 0
+        }
+      }
+    },
+    {
+      "caseId": "buy-invalid-bundle",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-invalid",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 6
+        }
+      }
+    },
+    {
+      "caseId": "buy-invalid-company",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-company",
+        "turn": 1,
+        "payload": {
+          "companyId": "UNKNOWN",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-wrong-phase",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "RESULT",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-stale-turn",
+      "operation": "BUY_INFORMATION",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 0,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "buy-request-replay",
+      "operation": "BUY_INFORMATION_REPLAY",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INFO",
+        "coins": 3,
+        "purchasedBundles": []
+      },
+      "request": {
+        "type": "BUY_INFORMATION",
+        "requestId": "info-001",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI",
+          "bundleIndex": 1
+        }
+      }
+    },
+    {
+      "caseId": "order-success",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-success",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-too-short",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-too-short",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-too-many-intervals",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-too-many-intervals",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 0,
+                  "exitDay": 5
+                },
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                },
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-overlap",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-overlap",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 15
+                },
+                {
+                  "entryDay": 10,
+                  "exitDay": 20
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-invalid-ratio",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-invalid-ratio",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 8000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 2000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-day-out-of-range",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-day-out-of-range",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 25,
+                  "exitDay": 31
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-unselected-company",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-unselected-company",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 10,
+                  "exitDay": 15
+                }
+              ]
+            },
+            {
+              "companyId": "BANK",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-8",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-8",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 8
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-13",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-13",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-7",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-7",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 7
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-14",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-3-to-14",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 14
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-25-to-30",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-25-to-30",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 25,
+                  "exitDay": 30
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-daily-26-to-31",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-daily-26-to-31",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 26,
+                  "exitDay": 31
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-day-zero-entry",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-day-zero-entry",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 0,
+                  "exitDay": 5
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-noninteger-day",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-noninteger-day",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3.5,
+                  "exitDay": 8.5
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-exit-before-entry",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-exit-before-entry",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 8,
+                  "exitDay": 3
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-missing-interval",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-missing-interval",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": []
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "caseId": "order-touching-intervals",
+      "operation": "SUBMIT_INVESTMENT",
+      "setup": {
+        "senderPlayerId": "P1",
+        "phase": "INVESTMENT",
+        "selectedCompanies": [
+          "AI",
+          "FOOD"
+        ]
+      },
+      "request": {
+        "type": "SUBMIT_INVESTMENT",
+        "requestId": "order-touching-intervals",
+        "turn": 1,
+        "payload": {
+          "investments": [
+            {
+              "companyId": "AI",
+              "weightBps": 6000,
+              "intervals": [
+                {
+                  "entryDay": 3,
+                  "exitDay": 8
+                },
+                {
+                  "entryDay": 8,
+                  "exitDay": 13
+                }
+              ]
+            },
+            {
+              "companyId": "FOOD",
+              "weightBps": 4000,
+              "intervals": [
+                {
+                  "entryDay": 5,
+                  "exitDay": 10
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "selectionReplay": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/A_selection_replay.json",
+    "sourceSha256": "0fd80a9d00f597b63a759bb6bc62a813457203017ad2cc44fe34251609cbf406",
+    "data": {
+      "turn": 1,
+      "startPhase": "SELECTION",
+      "startServerElapsedSeconds": 50,
+      "startPhaseEndsAtServerSeconds": 82,
+      "startSelectionDeadlineAtServerSeconds": 54,
+      "steps": [
+        {
+          "senderPlayerId": "P1",
+          "requestReceivedAtServerSeconds": 53,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-1",
+            "turn": 1,
+            "payload": {
+              "companyId": "AI"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P2",
+          "requestReceivedAtServerSeconds": 56,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-2",
+            "turn": 1,
+            "payload": {
+              "companyId": "SPACE"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P3",
+          "requestReceivedAtServerSeconds": 59,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-3",
+            "turn": 1,
+            "payload": {
+              "companyId": "BIO"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P4",
+          "requestReceivedAtServerSeconds": 62,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-4",
+            "turn": 1,
+            "payload": {
+              "companyId": "AI"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P4",
+          "requestReceivedAtServerSeconds": 65,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-5",
+            "turn": 1,
+            "payload": {
+              "companyId": "BIO"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P3",
+          "requestReceivedAtServerSeconds": 68,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-6",
+            "turn": 1,
+            "payload": {
+              "companyId": "AUTO"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P2",
+          "requestReceivedAtServerSeconds": 71,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-7",
+            "turn": 1,
+            "payload": {
+              "companyId": "BANK"
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P1",
+          "requestReceivedAtServerSeconds": 74,
+          "request": {
+            "type": "SELECT_COMPANY",
+            "requestId": "pick-8",
+            "turn": 1,
+            "payload": {
+              "companyId": "FOOD"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "testActions": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/exchange_examples.json",
+    "sourceSha256": "48a3ab4dff0ea1b4cb1aaa77e4ce36aaca053f6a39fda59799bd89df7d15bd84",
+    "data": {
+      "examples": [
+        {
+          "senderPlayerId": "P1",
+          "request": {
+            "type": "BUY_INFORMATION",
+            "requestId": "info-001",
+            "turn": 1,
+            "payload": {
+              "companyId": "AI",
+              "bundleIndex": 1
+            }
+          }
+        },
+        {
+          "senderPlayerId": "P1",
+          "request": {
+            "type": "SUBMIT_INVESTMENT",
+            "requestId": "order-001",
+            "turn": 1,
+            "payload": {
+              "investments": [
+                {
+                  "companyId": "AI",
+                  "weightBps": 6000,
+                  "intervals": [
+                    {
+                      "entryDay": 10,
+                      "exitDay": 15
+                    }
+                  ]
+                },
+                {
+                  "companyId": "FOOD",
+                  "weightBps": 4000,
+                  "intervals": [
+                    {
+                      "entryDay": 5,
+                      "exitDay": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "incomingEvents": {
+    "purchaseResult": {
+      "type": "BUY_INFORMATION_RESULT",
+      "requestId": "info-001",
+      "turn": 1,
+      "success": true,
+      "errorCode": "",
+      "payload": {
+        "remainingCoins": 2,
+        "companyId": "AI",
+        "bundleIndex": 1,
+        "startDay": 6,
+        "dailyChangesBps": [
+          -1500,
+          -2000,
+          -2500,
+          -3000,
+          -4000
+        ]
+      }
+    },
+    "investmentResult": {
+      "type": "SUBMIT_INVESTMENT_RESULT",
+      "requestId": "order-001",
+      "turn": 1,
+      "success": true,
+      "errorCode": "",
+      "payload": {
+        "locked": true,
+        "investments": [
+          {
+            "companyId": "AI",
+            "weightBps": 6000,
+            "intervals": [
+              {
+                "entryDay": 10,
+                "exitDay": 15
+              }
+            ]
+          },
+          {
+            "companyId": "FOOD",
+            "weightBps": 4000,
+            "intervals": [
+              {
+                "entryDay": 5,
+                "exitDay": 10
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "selectionUpdates": [
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 1,
+        "currentPlayerId": "P2",
+        "serverElapsedSeconds": 53,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 57,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 2,
+        "currentPlayerId": "P3",
+        "serverElapsedSeconds": 56,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 60,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 3,
+        "currentPlayerId": "P4",
+        "serverElapsedSeconds": 59,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 63,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 4,
+        "currentPlayerId": "P4",
+        "serverElapsedSeconds": 62,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 66,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 5,
+        "currentPlayerId": "P3",
+        "serverElapsedSeconds": 65,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 69,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 6,
+        "currentPlayerId": "P2",
+        "serverElapsedSeconds": 68,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 72,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      },
+      {
+        "phase": "SELECTION",
+        "selectionIndex": 7,
+        "currentPlayerId": "P1",
+        "serverElapsedSeconds": 71,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 75,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      },
+      {
+        "phase": "INVESTMENT",
+        "selectionIndex": 8,
+        "currentPlayerId": "",
+        "serverElapsedSeconds": 74,
+        "phaseEndsAtServerSeconds": 97,
+        "selectionDeadlineAtServerSeconds": 0,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    ],
+    "scoreboard": {
+      "schemaVersion": "1.0",
+      "turn": 1,
+      "phase": "RESULT",
+      "rankingFinalForTurn": true,
+      "rows": [
+        {
+          "rank": 1,
+          "playerId": "P1",
+          "totalAssets": 14280,
+          "turnReturnBps": 4280,
+          "cumulativeProfit": 4280,
+          "cumulativeReturnBps": 4280,
+          "returnHistory": [
+            {
+              "turn": 0,
+              "returnBps": 0
+            },
+            {
+              "turn": 1,
+              "returnBps": 4280
+            }
+          ]
+        },
+        {
+          "rank": 2,
+          "playerId": "P4",
+          "totalAssets": 12750,
+          "turnReturnBps": 2750,
+          "cumulativeProfit": 2750,
+          "cumulativeReturnBps": 2750,
+          "returnHistory": [
+            {
+              "turn": 0,
+              "returnBps": 0
+            },
+            {
+              "turn": 1,
+              "returnBps": 2750
+            }
+          ]
+        },
+        {
+          "rank": 3,
+          "playerId": "P2",
+          "totalAssets": 11080,
+          "turnReturnBps": 1080,
+          "cumulativeProfit": 1080,
+          "cumulativeReturnBps": 1080,
+          "returnHistory": [
+            {
+              "turn": 0,
+              "returnBps": 0
+            },
+            {
+              "turn": 1,
+              "returnBps": 1080
+            }
+          ]
+        },
+        {
+          "rank": 4,
+          "playerId": "P3",
+          "totalAssets": 8900,
+          "turnReturnBps": -1100,
+          "cumulativeProfit": -1100,
+          "cumulativeReturnBps": -1100,
+          "returnHistory": [
+            {
+              "turn": 0,
+              "returnBps": 0
+            },
+            {
+              "turn": 1,
+              "returnBps": -1100
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

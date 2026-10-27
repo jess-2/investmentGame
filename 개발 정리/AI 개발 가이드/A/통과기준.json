@@ -1,0 +1,737 @@
+{
+  "packageVersion": "prototype-v2",
+  "schemaVersion": "1.0",
+  "role": "A",
+  "fixtureId": "basic-turn-v2",
+  "rulesVersion": "rules-v2",
+  "sourcePathBase": "workspace-root",
+  "validationScope": "정답 데이터와 앞으로 실행할 점검표다. 실제 Unity/C# 통과 선언이 아니다.",
+  "expectedSnapshots": {
+    "D_public_after_selection.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_public_after_selection.json",
+      "sourceSha256": "a2ba288b5efc450d4cfdb04638ec29dba0105fd4f8968f17933e3854a466a428",
+      "data": {
+        "schemaVersion": "1.0",
+        "roomId": "DEV-ROOM-001",
+        "turn": 1,
+        "phase": "INVESTMENT",
+        "selectionIndex": 8,
+        "currentPlayerId": "",
+        "serverElapsedSeconds": 74,
+        "phaseEndsAtServerSeconds": 97,
+        "selectionDeadlineAtServerSeconds": 0,
+        "players": [
+          {
+            "playerId": "P1",
+            "displayName": "Player 1",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P2",
+            "displayName": "Player 2",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P3",
+            "displayName": "Player 3",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P4",
+            "displayName": "Player 4",
+            "connected": true,
+            "ready": true
+          }
+        ],
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    },
+    "D_scoreboard_expected.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_scoreboard_expected.json",
+      "sourceSha256": "2a3071195ba675396a8c2b47d42c6ce34d6a9887966b3a4ef857abe840e4bf57",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "phase": "RESULT",
+        "rankingFinalForTurn": true,
+        "rows": [
+          {
+            "rank": 1,
+            "playerId": "P1",
+            "totalAssets": 14280,
+            "turnReturnBps": 4280,
+            "cumulativeProfit": 4280,
+            "cumulativeReturnBps": 4280,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 4280
+              }
+            ]
+          },
+          {
+            "rank": 2,
+            "playerId": "P4",
+            "totalAssets": 12750,
+            "turnReturnBps": 2750,
+            "cumulativeProfit": 2750,
+            "cumulativeReturnBps": 2750,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 2750
+              }
+            ]
+          },
+          {
+            "rank": 3,
+            "playerId": "P2",
+            "totalAssets": 11080,
+            "turnReturnBps": 1080,
+            "cumulativeProfit": 1080,
+            "cumulativeReturnBps": 1080,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 1080
+              }
+            ]
+          },
+          {
+            "rank": 4,
+            "playerId": "P3",
+            "totalAssets": 8900,
+            "turnReturnBps": -1100,
+            "cumulativeProfit": -1100,
+            "cumulativeReturnBps": -1100,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": -1100
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "referenceCases": [
+    {
+      "caseId": "buy-wrong-phase",
+      "expected": {
+        "success": false,
+        "errorCode": "WRONG_PHASE",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-stale-turn",
+      "expected": {
+        "success": false,
+        "errorCode": "STALE_TURN",
+        "remainingCoins": 3,
+        "purchasedBundleCount": 0
+      }
+    },
+    {
+      "caseId": "buy-request-replay",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 2,
+        "purchasedBundleCount": 1,
+        "sameResponse": true
+      }
+    },
+    {
+      "caseId": "pick-wrong-player",
+      "expected": {
+        "success": false,
+        "errorCode": "NOT_YOUR_TURN",
+        "remainingSeats": 2
+      }
+    },
+    {
+      "caseId": "coin-grant-replay",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingCoins": 5
+      }
+    }
+  ],
+  "integrationChecks": [
+    {
+      "checkId": "A-connect",
+      "purpose": "4인 접속과 정원",
+      "setup": "실제 방 생성, 아직 참가자 없음",
+      "action": "방장 포함 4명이 참가하고 추가 1명이 참가 시도",
+      "expected": {
+        "connectedPlayerCount": 4,
+        "extraPlayerRejected": true,
+        "samePublicRoster": true
+      },
+      "verification": "실제 Unity 멀티 인스턴스/실기기 접속",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-routing",
+      "purpose": "구매 결과 개인 전송",
+      "setup": "P1~P4 연결, P1 코인3개, INFO",
+      "action": "P1이 info-001 구매",
+      "expected": {
+        "recipientPlayerIds": [
+          "P1"
+        ],
+        "P1Coins": 2,
+        "otherPlayerCoins": [
+          3,
+          3,
+          3
+        ],
+        "P2KnowsAiBundle1": false
+      },
+      "verification": "실제 멀티 수신 로그와 개인 화면 비교",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-host-ui",
+      "purpose": "방장도 개인뷰 사용",
+      "setup": "P1 방장, 미구매 AI 1번 묶음",
+      "action": "P1 구매 전후 화면 조회",
+      "expected": {
+        "beforeVisible": false,
+        "afterVisible": true,
+        "serverRulesCalled": true
+      },
+      "verification": "호스트 화면·서버 호출 기록",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-identity",
+      "purpose": "접속 신원 사용",
+      "setup": "전송 연결은 P2, 임의 추가 필드가 P1을 주장",
+      "action": "정보 구매 요청",
+      "expected": "P1의 코인/구매기록은 변하지 않고 실제 P2로 처리하거나 잘못된 요청으로 거절",
+      "verification": "실제 RPC/라우팅 테스트",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-request-conflict",
+      "purpose": "동일 키의 다른 요청 차단",
+      "setup": "info-001 최초처리 완료",
+      "action": "같은 키로 다른 기업 payload 제출",
+      "expected": "별도 합의 오류로 거절, 추가 차감/구매 없음",
+      "verification": "구현 테스트; 새 오류코드는 공통 계약에 추가",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-concurrent-purchase",
+      "purpose": "코인 경합 직렬 처리",
+      "setup": "P1 코인1개, 미열람 묶음2개",
+      "action": "서로 다른 requestId 구매2개를 동시에 전송",
+      "expected": {
+        "successCount": 1,
+        "failureCount": 1,
+        "remainingCoins": 0,
+        "purchasedBundleCount": 1
+      },
+      "verification": "실제 서비스 및 네트워크 경합 테스트",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-once-settlement",
+      "purpose": "정산 중복 적용 방지",
+      "setup": "기본4명 주문 확정",
+      "action": "같은1턴 정산을2회 호출",
+      "expected": {
+        "assets": {
+          "P1": 14280,
+          "P2": 11080,
+          "P3": 8900,
+          "P4": 12750
+        },
+        "appliedCount": 1
+      },
+      "verification": "B와 통합 실행",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-disconnect",
+      "purpose": "호스트 종료 정책",
+      "setup": "4명 플레이 중",
+      "action": "P1 호스트 프로세스 종료",
+      "expected": "남은 참가자에게 연결 종료 안내, 정상 진행 중인 것처럼 남지 않음; 호스트 이전은 제외",
+      "verification": "실기기 또는 독립 프로세스",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "A-stage-and-time",
+      "purpose": "최대120초와 자동선택",
+      "setup": "수동 또는 실제시계 모드 명시",
+      "action": "단계 전환·전원 완료·마감 실행",
+      "expected": "일반 INFO50/선택32/주문23/공개10/결과5초. 입찰턴은 INFO35+입찰15초. 선택초과는 BANK 우선의 가능한 기업, 주문초과는50:50/0~5일. 수동모드는 자동진행만 정지",
+      "verification": "실제 서버 타이머와 기본 행동 통합",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    }
+  ],
+  "selectionResults": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/A_selection_replay.json",
+    "sourceSha256": "0fd80a9d00f597b63a759bb6bc62a813457203017ad2cc44fe34251609cbf406",
+    "data": {
+      "steps": [
+        {
+          "requestId": "pick-1",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AI"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 1,
+            "currentPlayerId": "P2",
+            "serverElapsedSeconds": 53,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 57,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-2",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "SPACE"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 2,
+            "currentPlayerId": "P3",
+            "serverElapsedSeconds": 56,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 60,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-3",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BIO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 3,
+            "currentPlayerId": "P4",
+            "serverElapsedSeconds": 59,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 63,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-4",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AI"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 4,
+            "currentPlayerId": "P4",
+            "serverElapsedSeconds": 62,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 66,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-5",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BIO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 5,
+            "currentPlayerId": "P3",
+            "serverElapsedSeconds": 65,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 69,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-6",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AUTO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 6,
+            "currentPlayerId": "P2",
+            "serverElapsedSeconds": 68,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 72,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-7",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BANK"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 7,
+            "currentPlayerId": "P1",
+            "serverElapsedSeconds": 71,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 75,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-8",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "FOOD"
+          },
+          "expectedPublicUpdate": {
+            "phase": "INVESTMENT",
+            "selectionIndex": 8,
+            "currentPlayerId": "",
+            "serverElapsedSeconds": 74,
+            "phaseEndsAtServerSeconds": 97,
+            "selectionDeadlineAtServerSeconds": 0,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "exchangeResults": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/exchange_examples.json",
+    "sourceSha256": "48a3ab4dff0ea1b4cb1aaa77e4ce36aaca053f6a39fda59799bd89df7d15bd84",
+    "data": {
+      "examples": [
+        {
+          "requestId": "info-001",
+          "recipientPlayerId": "P1",
+          "response": {
+            "type": "BUY_INFORMATION_RESULT",
+            "requestId": "info-001",
+            "turn": 1,
+            "success": true,
+            "errorCode": "",
+            "payload": {
+              "remainingCoins": 2,
+              "companyId": "AI",
+              "bundleIndex": 1,
+              "startDay": 6,
+              "dailyChangesBps": [
+                -1500,
+                -2000,
+                -2500,
+                -3000,
+                -4000
+              ]
+            }
+          },
+          "broadcast": false
+        },
+        {
+          "requestId": "order-001",
+          "recipientPlayerId": "P1",
+          "response": {
+            "type": "SUBMIT_INVESTMENT_RESULT",
+            "requestId": "order-001",
+            "turn": 1,
+            "success": true,
+            "errorCode": "",
+            "payload": {
+              "locked": true,
+              "investments": [
+                {
+                  "companyId": "AI",
+                  "weightBps": 6000,
+                  "intervals": [
+                    {
+                      "entryDay": 10,
+                      "exitDay": 15
+                    }
+                  ]
+                },
+                {
+                  "companyId": "FOOD",
+                  "weightBps": 4000,
+                  "intervals": [
+                    {
+                      "entryDay": 5,
+                      "exitDay": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "broadcast": false
+        }
+      ]
+    }
+  }
+}

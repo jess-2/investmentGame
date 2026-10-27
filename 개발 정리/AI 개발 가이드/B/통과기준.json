@@ -1,0 +1,946 @@
+{
+  "packageVersion": "prototype-v2",
+  "schemaVersion": "1.0",
+  "role": "B",
+  "fixtureId": "basic-turn-v2",
+  "rulesVersion": "rules-v2",
+  "sourcePathBase": "workspace-root",
+  "validationScope": "정답 데이터와 앞으로 실행할 점검표다. 실제 Unity/C# 통과 선언이 아니다.",
+  "expectedSnapshots": {
+    "B_settlement_expected.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/B_settlement_expected.json",
+      "sourceSha256": "fdb597fd2fb4e31adcef860977762a4e1a8c44059ebd409ab1253e83b2bf9f8a",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "serverOnly": true,
+        "players": [
+          {
+            "playerId": "P1",
+            "startingAssets": 10000,
+            "profit": 4280,
+            "endingAssets": 14280,
+            "turnReturnBps": 4280,
+            "companyProfits": [
+              {
+                "companyId": "AI",
+                "profit": 4200
+              },
+              {
+                "companyId": "FOOD",
+                "profit": 80
+              }
+            ]
+          },
+          {
+            "playerId": "P2",
+            "startingAssets": 10000,
+            "profit": 1080,
+            "endingAssets": 11080,
+            "turnReturnBps": 1080,
+            "companyProfits": [
+              {
+                "companyId": "SPACE",
+                "profit": 1050
+              },
+              {
+                "companyId": "BANK",
+                "profit": 30
+              }
+            ]
+          },
+          {
+            "playerId": "P3",
+            "startingAssets": 10000,
+            "profit": -1100,
+            "endingAssets": 8900,
+            "turnReturnBps": -1100,
+            "companyProfits": [
+              {
+                "companyId": "BIO",
+                "profit": -1500
+              },
+              {
+                "companyId": "AUTO",
+                "profit": 400
+              }
+            ]
+          },
+          {
+            "playerId": "P4",
+            "startingAssets": 10000,
+            "profit": 2750,
+            "endingAssets": 12750,
+            "turnReturnBps": 2750,
+            "companyProfits": [
+              {
+                "companyId": "AI",
+                "profit": 4250
+              },
+              {
+                "companyId": "BIO",
+                "profit": -1500
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "D_scoreboard_expected.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_scoreboard_expected.json",
+      "sourceSha256": "2a3071195ba675396a8c2b47d42c6ce34d6a9887966b3a4ef857abe840e4bf57",
+      "data": {
+        "schemaVersion": "1.0",
+        "turn": 1,
+        "phase": "RESULT",
+        "rankingFinalForTurn": true,
+        "rows": [
+          {
+            "rank": 1,
+            "playerId": "P1",
+            "totalAssets": 14280,
+            "turnReturnBps": 4280,
+            "cumulativeProfit": 4280,
+            "cumulativeReturnBps": 4280,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 4280
+              }
+            ]
+          },
+          {
+            "rank": 2,
+            "playerId": "P4",
+            "totalAssets": 12750,
+            "turnReturnBps": 2750,
+            "cumulativeProfit": 2750,
+            "cumulativeReturnBps": 2750,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 2750
+              }
+            ]
+          },
+          {
+            "rank": 3,
+            "playerId": "P2",
+            "totalAssets": 11080,
+            "turnReturnBps": 1080,
+            "cumulativeProfit": 1080,
+            "cumulativeReturnBps": 1080,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": 1080
+              }
+            ]
+          },
+          {
+            "rank": 4,
+            "playerId": "P3",
+            "totalAssets": 8900,
+            "turnReturnBps": -1100,
+            "cumulativeProfit": -1100,
+            "cumulativeReturnBps": -1100,
+            "returnHistory": [
+              {
+                "turn": 0,
+                "returnBps": 0
+              },
+              {
+                "turn": 1,
+                "returnBps": -1100
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "D_public_after_selection.json": {
+      "sourcePath": "개발 정리/임시 데이터 및 검증용/D_public_after_selection.json",
+      "sourceSha256": "a2ba288b5efc450d4cfdb04638ec29dba0105fd4f8968f17933e3854a466a428",
+      "data": {
+        "schemaVersion": "1.0",
+        "roomId": "DEV-ROOM-001",
+        "turn": 1,
+        "phase": "INVESTMENT",
+        "selectionIndex": 8,
+        "currentPlayerId": "",
+        "serverElapsedSeconds": 74,
+        "phaseEndsAtServerSeconds": 97,
+        "selectionDeadlineAtServerSeconds": 0,
+        "players": [
+          {
+            "playerId": "P1",
+            "displayName": "Player 1",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P2",
+            "displayName": "Player 2",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P3",
+            "displayName": "Player 3",
+            "connected": true,
+            "ready": true
+          },
+          {
+            "playerId": "P4",
+            "displayName": "Player 4",
+            "connected": true,
+            "ready": true
+          }
+        ],
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    }
+  },
+  "referenceCases": [
+    {
+      "caseId": "pick-success",
+      "expected": {
+        "success": true,
+        "errorCode": "",
+        "remainingSeats": 1
+      }
+    },
+    {
+      "caseId": "pick-full",
+      "expected": {
+        "success": false,
+        "errorCode": "COMPANY_FULL",
+        "remainingSeats": 0
+      }
+    },
+    {
+      "caseId": "pick-duplicate-company",
+      "expected": {
+        "success": false,
+        "errorCode": "DUPLICATE_COMPANY",
+        "remainingSeats": 1
+      }
+    },
+    {
+      "caseId": "pick-wrong-player",
+      "expected": {
+        "success": false,
+        "errorCode": "NOT_YOUR_TURN",
+        "remainingSeats": 2
+      }
+    },
+    {
+      "caseId": "order-success",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-too-short",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-too-many-intervals",
+      "expected": {
+        "success": false,
+        "errorCode": "TOO_MANY_INTERVALS"
+      }
+    },
+    {
+      "caseId": "order-overlap",
+      "expected": {
+        "success": false,
+        "errorCode": "OVERLAPPING_INTERVALS"
+      }
+    },
+    {
+      "caseId": "order-invalid-ratio",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_RATIO"
+      }
+    },
+    {
+      "caseId": "order-day-out-of-range",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-unselected-company",
+      "expected": {
+        "success": false,
+        "errorCode": "COMPANY_NOT_SELECTED"
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-8",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-13",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-7",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-daily-3-to-14",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_HOLDING_DAYS"
+      }
+    },
+    {
+      "caseId": "order-daily-25-to-30",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-daily-26-to-31",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-day-zero-entry",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    },
+    {
+      "caseId": "order-noninteger-day",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-exit-before-entry",
+      "expected": {
+        "success": false,
+        "errorCode": "INVALID_DAY"
+      }
+    },
+    {
+      "caseId": "order-missing-interval",
+      "expected": {
+        "success": false,
+        "errorCode": "MISSING_INTERVAL"
+      }
+    },
+    {
+      "caseId": "order-touching-intervals",
+      "expected": {
+        "success": true,
+        "errorCode": ""
+      }
+    }
+  ],
+  "integrationChecks": [
+    {
+      "checkId": "B-market-shape",
+      "purpose": "기업/날짜 단위",
+      "setup": "원본 시장 로드",
+      "action": "기업별 조회",
+      "expected": {
+        "companyCount": 6,
+        "valuesPerCompany": 31,
+        "day0": 0,
+        "publicBundlesPerCompany": 2,
+        "aiDay10": -4000,
+        "aiDay15": 3000
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-settlement",
+      "purpose": "전체 정산",
+      "setup": "기본4명 주문",
+      "action": "1턴 정산",
+      "expected": {
+        "endingAssets": {
+          "P1": 14280,
+          "P2": 11080,
+          "P3": 8900,
+          "P4": 12750
+        },
+        "rankOrder": [
+          "P1",
+          "P4",
+          "P2",
+          "P3"
+        ]
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-no-partial-mutation",
+      "purpose": "거절 시 원장 유지",
+      "setup": "정원 마감 또는 잘못된 주문",
+      "action": "실패 요청을 적용",
+      "expected": "선택원장·주문·자산 모두 요청 전과 동일; 차례도 A가 전진하지 않음",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-rounding",
+      "purpose": "음수0방향 버림",
+      "setup": {
+        "allocatedAssets": 101,
+        "rateBps": -150
+      },
+      "action": "기업 손익 계산",
+      "expected": {
+        "profit": -1
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-multi-turn",
+      "purpose": "누적수익률은 합산 아님",
+      "setup": {
+        "gameInitialAssets": 10000,
+        "turn1Assets": 11000,
+        "turn2Assets": 12100
+      },
+      "action": "2턴 성과 계산",
+      "expected": {
+        "turn2ReturnBps": 1000,
+        "cumulativeReturnBps": 2100
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-ranking-tie",
+      "purpose": "공동순위",
+      "setup": [
+        {
+          "playerId": "P1",
+          "assets": 10000
+        },
+        {
+          "playerId": "P2",
+          "assets": 10000
+        },
+        {
+          "playerId": "P3",
+          "assets": 9000
+        },
+        {
+          "playerId": "P4",
+          "assets": 8000
+        }
+      ],
+      "action": "총자산 정렬",
+      "expected": [
+        {
+          "playerId": "P1",
+          "rank": 1
+        },
+        {
+          "playerId": "P2",
+          "rank": 1
+        },
+        {
+          "playerId": "P3",
+          "rank": 3
+        },
+        {
+          "playerId": "P4",
+          "rank": 4
+        }
+      ],
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-lock-and-replay",
+      "purpose": "확정 뒤 변경/재정산 차단",
+      "setup": "시장 공개/정산 뒤",
+      "action": "주문 변경과 동일 턴 정산 재호출",
+      "expected": "주문은 잠김 유지, 자산은 동일. 합의된 오류/기존 결과 사용",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-empty-interval",
+      "purpose": "구간누락 방어",
+      "setup": "두 기업 중 하나의 intervals가 빈 배열",
+      "action": "주문 제출",
+      "expected": "MISSING_INTERVAL로 거절, 상태불변",
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-daily-dates",
+      "purpose": "사용자 확정 날짜",
+      "setup": "선택 완료된 기업2개",
+      "action": "각 날짜구간 주문 제출",
+      "expected": {
+        "allowed": [
+          [
+            3,
+            8
+          ],
+          [
+            3,
+            13
+          ],
+          [
+            25,
+            30
+          ],
+          [
+            0,
+            5
+          ]
+        ],
+        "rejected": [
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            14
+          ],
+          [
+            26,
+            31
+          ],
+          [
+            3.5,
+            8.5
+          ]
+        ]
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    },
+    {
+      "checkId": "B-remainder",
+      "purpose": "잔돈 보존",
+      "setup": {
+        "investableAssets": 10001,
+        "firstWeightBps": 6000
+      },
+      "action": "기업 원금 배분",
+      "expected": {
+        "first": 6000,
+        "second": 4001
+      },
+      "verification": "실제 C# 구현에 입력하여 검증",
+      "executionStatus": "NOT_RUN_ON_UNITY_IMPLEMENTATION"
+    }
+  ],
+  "selectionResults": {
+    "sourcePath": "개발 정리/임시 데이터 및 검증용/A_selection_replay.json",
+    "sourceSha256": "0fd80a9d00f597b63a759bb6bc62a813457203017ad2cc44fe34251609cbf406",
+    "data": {
+      "steps": [
+        {
+          "requestId": "pick-1",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AI"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 1,
+            "currentPlayerId": "P2",
+            "serverElapsedSeconds": 53,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 57,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-2",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "SPACE"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 2,
+            "currentPlayerId": "P3",
+            "serverElapsedSeconds": 56,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 60,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-3",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BIO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 3,
+            "currentPlayerId": "P4",
+            "serverElapsedSeconds": 59,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 63,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-4",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AI"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 4,
+            "currentPlayerId": "P4",
+            "serverElapsedSeconds": 62,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 66,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-5",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BIO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 5,
+            "currentPlayerId": "P3",
+            "serverElapsedSeconds": 65,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 69,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 2
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-6",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "AUTO"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 6,
+            "currentPlayerId": "P2",
+            "serverElapsedSeconds": 68,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 72,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-7",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "BANK"
+          },
+          "expectedPublicUpdate": {
+            "phase": "SELECTION",
+            "selectionIndex": 7,
+            "currentPlayerId": "P1",
+            "serverElapsedSeconds": 71,
+            "phaseEndsAtServerSeconds": 82,
+            "selectionDeadlineAtServerSeconds": 75,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 2
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        },
+        {
+          "requestId": "pick-8",
+          "expectedPrivateResult": {
+            "success": true,
+            "errorCode": "",
+            "companyId": "FOOD"
+          },
+          "expectedPublicUpdate": {
+            "phase": "INVESTMENT",
+            "selectionIndex": 8,
+            "currentPlayerId": "",
+            "serverElapsedSeconds": 74,
+            "phaseEndsAtServerSeconds": 97,
+            "selectionDeadlineAtServerSeconds": 0,
+            "companySeats": [
+              {
+                "companyId": "AI",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "SPACE",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "FOOD",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BANK",
+                "remainingSeats": 1
+              },
+              {
+                "companyId": "BIO",
+                "remainingSeats": 0
+              },
+              {
+                "companyId": "AUTO",
+                "remainingSeats": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

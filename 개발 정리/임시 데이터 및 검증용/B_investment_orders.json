@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "serverOnly": true,
+  "orders": [
+    {
+      "playerId": "P1",
+      "investments": [
+        {
+          "companyId": "AI",
+          "weightBps": 6000,
+          "intervals": [
+            {
+              "entryDay": 10,
+              "exitDay": 15
+            }
+          ]
+        },
+        {
+          "companyId": "FOOD",
+          "weightBps": 4000,
+          "intervals": [
+            {
+              "entryDay": 5,
+              "exitDay": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "playerId": "P2",
+      "investments": [
+        {
+          "companyId": "SPACE",
+          "weightBps": 7000,
+          "intervals": [
+            {
+              "entryDay": 5,
+              "exitDay": 10
+            }
+          ]
+        },
+        {
+          "companyId": "BANK",
+          "weightBps": 3000,
+          "intervals": [
+            {
+              "entryDay": 5,
+              "exitDay": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "playerId": "P3",
+      "investments": [
+        {
+          "companyId": "BIO",
+          "weightBps": 5000,
+          "intervals": [
+            {
+              "entryDay": 5,
+              "exitDay": 10
+            }
+          ]
+        },
+        {
+          "companyId": "AUTO",
+          "weightBps": 5000,
+          "intervals": [
+            {
+              "entryDay": 5,
+              "exitDay": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "playerId": "P4",
+      "investments": [
+        {
+          "companyId": "AI",
+          "weightBps": 5000,
+          "intervals": [
+            {
+              "entryDay": 10,
+              "exitDay": 15
+            },
+            {
+              "entryDay": 20,
+              "exitDay": 25
+            }
+          ]
+        },
+        {
+          "companyId": "BIO",
+          "weightBps": 5000,
+          "intervals": [
+            {
+              "entryDay": 15,
+              "exitDay": 20
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

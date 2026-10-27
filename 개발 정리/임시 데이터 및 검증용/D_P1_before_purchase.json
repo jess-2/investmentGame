@@ -1,0 +1,184 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "recipientPlayerId": "P1",
+  "assets": 10000,
+  "coins": 3,
+  "ownInvestments": [],
+  "companies": [
+    {
+      "companyId": "AI",
+      "visibleBundles": [
+        {
+          "bundleIndex": 0,
+          "startDay": 1,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -200,
+            -400,
+            -600,
+            -800,
+            -1000
+          ]
+        },
+        {
+          "bundleIndex": 2,
+          "startDay": 11,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -2000,
+            -500,
+            1000,
+            2000,
+            3000
+          ]
+        }
+      ]
+    },
+    {
+      "companyId": "SPACE",
+      "visibleBundles": [
+        {
+          "bundleIndex": 0,
+          "startDay": 1,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -100,
+            -200,
+            -300,
+            -400,
+            -500
+          ]
+        },
+        {
+          "bundleIndex": 3,
+          "startDay": 16,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            1400,
+            800,
+            200,
+            -400,
+            -1000
+          ]
+        }
+      ]
+    },
+    {
+      "companyId": "FOOD",
+      "visibleBundles": [
+        {
+          "bundleIndex": 1,
+          "startDay": 6,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            140,
+            180,
+            220,
+            260,
+            300
+          ]
+        },
+        {
+          "bundleIndex": 4,
+          "startDay": 21,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            380,
+            360,
+            340,
+            320,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "companyId": "BANK",
+      "visibleBundles": [
+        {
+          "bundleIndex": 0,
+          "startDay": 1,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            10,
+            20,
+            30,
+            40,
+            50
+          ]
+        },
+        {
+          "bundleIndex": 5,
+          "startDay": 26,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            210,
+            220,
+            230,
+            240,
+            250
+          ]
+        }
+      ]
+    },
+    {
+      "companyId": "BIO",
+      "visibleBundles": [
+        {
+          "bundleIndex": 0,
+          "startDay": 1,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -400,
+            -800,
+            -1200,
+            -1600,
+            -2000
+          ]
+        },
+        {
+          "bundleIndex": 2,
+          "startDay": 11,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -3200,
+            -1400,
+            400,
+            2200,
+            4000
+          ]
+        }
+      ]
+    },
+    {
+      "companyId": "AUTO",
+      "visibleBundles": [
+        {
+          "bundleIndex": 1,
+          "startDay": 6,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            -40,
+            120,
+            280,
+            440,
+            600
+          ]
+        },
+        {
+          "bundleIndex": 3,
+          "startDay": 16,
+          "source": "PUBLIC",
+          "dailyChangesBps": [
+            200,
+            300,
+            400,
+            500,
+            600
+          ]
+        }
+      ]
+    }
+  ]
+}

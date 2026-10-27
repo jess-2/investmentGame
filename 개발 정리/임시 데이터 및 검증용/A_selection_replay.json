@@ -1,0 +1,418 @@
+{
+  "schemaVersion": "1.0",
+  "turn": 1,
+  "startPhase": "SELECTION",
+  "startServerElapsedSeconds": 50,
+  "startPhaseEndsAtServerSeconds": 82,
+  "startSelectionDeadlineAtServerSeconds": 54,
+  "steps": [
+    {
+      "senderPlayerId": "P1",
+      "requestReceivedAtServerSeconds": 53,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-1",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "AI"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 1,
+        "currentPlayerId": "P2",
+        "serverElapsedSeconds": 53,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 57,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P2",
+      "requestReceivedAtServerSeconds": 56,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-2",
+        "turn": 1,
+        "payload": {
+          "companyId": "SPACE"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "SPACE"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 2,
+        "currentPlayerId": "P3",
+        "serverElapsedSeconds": 56,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 60,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P3",
+      "requestReceivedAtServerSeconds": 59,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-3",
+        "turn": 1,
+        "payload": {
+          "companyId": "BIO"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "BIO"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 3,
+        "currentPlayerId": "P4",
+        "serverElapsedSeconds": 59,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 63,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P4",
+      "requestReceivedAtServerSeconds": 62,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-4",
+        "turn": 1,
+        "payload": {
+          "companyId": "AI"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "AI"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 4,
+        "currentPlayerId": "P4",
+        "serverElapsedSeconds": 62,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 66,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P4",
+      "requestReceivedAtServerSeconds": 65,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-5",
+        "turn": 1,
+        "payload": {
+          "companyId": "BIO"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "BIO"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 5,
+        "currentPlayerId": "P3",
+        "serverElapsedSeconds": 65,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 69,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 2
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P3",
+      "requestReceivedAtServerSeconds": 68,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-6",
+        "turn": 1,
+        "payload": {
+          "companyId": "AUTO"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "AUTO"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 6,
+        "currentPlayerId": "P2",
+        "serverElapsedSeconds": 68,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 72,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P2",
+      "requestReceivedAtServerSeconds": 71,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-7",
+        "turn": 1,
+        "payload": {
+          "companyId": "BANK"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "BANK"
+      },
+      "expectedPublicUpdate": {
+        "phase": "SELECTION",
+        "selectionIndex": 7,
+        "currentPlayerId": "P1",
+        "serverElapsedSeconds": 71,
+        "phaseEndsAtServerSeconds": 82,
+        "selectionDeadlineAtServerSeconds": 75,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 2
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    },
+    {
+      "senderPlayerId": "P1",
+      "requestReceivedAtServerSeconds": 74,
+      "request": {
+        "type": "SELECT_COMPANY",
+        "requestId": "pick-8",
+        "turn": 1,
+        "payload": {
+          "companyId": "FOOD"
+        }
+      },
+      "expectedPrivateResult": {
+        "success": true,
+        "errorCode": "",
+        "companyId": "FOOD"
+      },
+      "expectedPublicUpdate": {
+        "phase": "INVESTMENT",
+        "selectionIndex": 8,
+        "currentPlayerId": "",
+        "serverElapsedSeconds": 74,
+        "phaseEndsAtServerSeconds": 97,
+        "selectionDeadlineAtServerSeconds": 0,
+        "companySeats": [
+          {
+            "companyId": "AI",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "SPACE",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "FOOD",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BANK",
+            "remainingSeats": 1
+          },
+          {
+            "companyId": "BIO",
+            "remainingSeats": 0
+          },
+          {
+            "companyId": "AUTO",
+            "remainingSeats": 1
+          }
+        ]
+      }
+    }
+  ]
+}
