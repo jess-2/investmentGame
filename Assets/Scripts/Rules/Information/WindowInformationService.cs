@@ -22,6 +22,15 @@ namespace BlackWhale.Rules.Information
             public readonly Dictionary<string, Tuple<string, RuleResult>> Requests = new Dictionary<string, Tuple<string, RuleResult>>();
         }
         private readonly Dictionary<string, WindowTurn> windowTurns = new Dictionary<string, WindowTurn>();
+        private readonly Dictionary<string, LobbySettings> roomSettings = new Dictionary<string, LobbySettings>();
+        public void ConfigureRoom(string roomId, LobbySettings settings)
+        {
+            if (settings == null || !settings.IsValid) throw new ArgumentException("Invalid lobby settings.");
+            lock (gate) roomSettings[roomId] = settings.Copy();
+        }
+        private bool PublicInformationComplete(RequestContext c) =>
+            roomSettings.TryGetValue(c.RoomId, out var options) && options.publicRevealDays == 0 ||
+            Windows(c).Records.Where(r => r.Source == "PUBLIC").Select(r => r.Player).Distinct().Count() == 4;
         public bool UsesWindowInformation => source is IWindowMarketDataSource windows && windows.UsesWindowInformation;
         private WindowTurn Windows(RequestContext c)
         {
@@ -81,17 +90,35 @@ namespace BlackWhale.Rules.Information
                 dailyOpenBps = ((IWindowMarketDataSource)source).GetOpenWindow(c.Turn, record.Company, record.Start, record.Length) });
         }
         public RuleResult RevealWindow(RequestContext c, string company, int start, bool automatic)
+            => RevealPublicDays(c, company, start >= 1 && start <= 26 ? Enumerable.Range(start, 5).ToArray() : Array.Empty<int>(), automatic, start);
+        public RuleResult RevealPublicDays(RequestContext c, string company, int[] days, bool automatic)
+            => RevealPublicDays(c, company, days, automatic, days?.FirstOrDefault() ?? 0);
+        private RuleResult RevealPublicDays(RequestContext c, string company, int[] days, bool automatic, int requestedStart)
         {
-            lock (gate) return WindowRequest(c, "public|" + company + "|" + start + "|" + automatic, () =>
+            // One public choice can have multiple records; each record contains consecutive days only.
+            var selected = days?.OrderBy(d => d).ToArray() ?? Array.Empty<int>();
+            lock (gate) return WindowRequest(c, "public|" + company + "|" + requestedStart + "|" + string.Join(",", selected) + "|" + automatic, () =>
             {
-                string error = ValidateWindow(c, company, start); if (error != "") return new RuleResult(error);
+                if (requestedStart < 1 || selected.Length == 0 || selected.Length > 30 || selected.Any(d => d < 1 || d > 30)
+                    || selected.Distinct().Count() != selected.Length) return new RuleResult("INVALID_WINDOW");
+                string error = ValidateWindow(c, company, selected[0], 1); if (error != "") return new RuleResult(error);
                 var state = Windows(c);
                 var revealed = state.Records.Where(r => r.Source == "PUBLIC").ToArray();
-                if (revealed.Length >= 4) return new RuleResult("PUBLIC_SELECTION_COMPLETE");
+                if (PublicInformationComplete(c)) return new RuleResult("PUBLIC_SELECTION_COMPLETE");
                 if (revealed.Any(r => r.Player == c.PlayerId)) return new RuleResult("ALREADY_REVEALED");
                 var mask = Mask(state, c.PlayerId, company, true);
-                if (Enumerable.Range(start, 5).Any(d => mask[d])) return new RuleResult("PUBLIC_WINDOW_OVERLAP");
-                return WindowResult(c, AddWindow(c, company, start, "PUBLIC", 0, automatic));
+                if (selected.Any(d => mask[d])) return new RuleResult("PUBLIC_WINDOW_OVERLAP");
+                // Read all selected data before recording anything, so a failure cannot partially reveal a choice.
+                var sourceWindows = (IWindowMarketDataSource)source;
+                foreach (int day in selected) { sourceWindows.GetWindow(c.Turn, company, day, 1); sourceWindows.GetOpenWindow(c.Turn, company, day, 1); }
+                WindowRecord first = null;
+                for (int i = 0; i < selected.Length; i++) {
+                    int start = selected[i], length = 1;
+                    while (i + 1 < selected.Length && selected[i + 1] == start + length) { i++; length++; }
+                    var record = AddWindow(c, company, start, "PUBLIC", 0, automatic, length);
+                    if (first == null) first = record;
+                }
+                return WindowResult(c, first);
             });
         }
         public RuleResult BuyWindow(RequestContext c, string company, int start, int endDay = 0)
@@ -101,7 +128,7 @@ namespace BlackWhale.Rules.Information
             {
                 string error = ValidateWindow(c, company, start, length); if (error != "") return new RuleResult(error);
                 var state = Windows(c);
-                if (state.Records.Count(r => r.Source == "PUBLIC") != 4) return new RuleResult("PUBLIC_SELECTION_PENDING");
+                if (!PublicInformationComplete(c)) return new RuleResult("PUBLIC_SELECTION_PENDING");
                 var mask = Mask(state, c.PlayerId, company);
                 int newDays = Enumerable.Range(start, length).Count(d => !mask[d]);
                 if (newDays == 0) return new RuleResult("ALREADY_VISIBLE");
@@ -121,8 +148,11 @@ namespace BlackWhale.Rules.Information
         }
         public PublicInformationChoice[] GetPublicInformation(RequestContext c)
         {
-            lock (gate) return Windows(c).Records.Where(r => r.Source == "PUBLIC").Select(r => new PublicInformationChoice {
-                playerId = r.Player, companyId = r.Company, startDay = r.Start, automatic = r.Automatic }).ToArray();
+            lock (gate) return Windows(c).Records.Where(r => r.Source == "PUBLIC").GroupBy(r => r.Player).Select(group => {
+                var first = group.First();
+                return new PublicInformationChoice { playerId = first.Player, companyId = first.Company, startDay = first.Start,
+                    automatic = first.Automatic, days = group.SelectMany(r => Enumerable.Range(r.Start, r.Length)).OrderBy(d => d).ToArray() };
+            }).ToArray();
         }
         private void PopulateWindows(RequestContext c, PlayerView view)
         {
@@ -159,7 +189,7 @@ namespace BlackWhale.Rules.Information
                     return new RuleResult("STALE_TURN");
                 if (c.Phase != Protocol.Info) return new RuleResult("WRONG_PHASE");
                 var state = Windows(c);
-                if (state.Records.Count(r => r.Source == "PUBLIC") != 4) return new RuleResult("PUBLIC_SELECTION_PENDING");
+                if (!PublicInformationComplete(c)) return new RuleResult("PUBLIC_SELECTION_PENDING");
                 var feature = FeaturePlayer(c.RoomId, c.PlayerId);
                 if (feature == null || !feature.Inventory.Contains(itemId)) return new RuleResult("INVALID_ITEM");
                 bool blackbox = itemId == "BLACKBOX";

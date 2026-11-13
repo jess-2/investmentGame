@@ -6,8 +6,12 @@ namespace BlackWhale.Shared
     public static class StockRules
     {
         public const int Turns = 6, Supply = 20, Slots = 30, PersonalLimit = 10;
-        public const int BankSupply = 120, DraftSeconds = 7, DraftRounds = 2, SharesPerPick = 15, InvestmentSeconds = 23;
+        public const int BankSupply = 120, DraftSeconds = 7, DraftRounds = 2, SharesPerPick = 15, DaySeconds = 2, InvestmentSeconds = 30 * DaySeconds;
+        // ProcessedDay is the number of completed closes; highlight the day currently in progress.
+        public static int? CurrentDay(PublicState state, PortfolioState portfolio) => state?.stockSystem == true
+            && state.phase == Protocol.Investment && portfolio != null ? Math.Min(30, Math.Max(1, portfolio.processedDay + 1)) : (int?)null;
         public const string AugmentPhase = "AUGMENT_SELECTION";
+        public const string Position = "SET_STOCK_POSITION";
         public const string Trade = "DRAFT_SHARES", Pass = "PASS_DRAFT", Choose = "CHOOSE_AUGMENT", Priority = "USE_DRAFT_PRIORITY";
         public static readonly string[] Augments = { "PRIORITY", "FLEXIBLE", "OPPORTUNITY", "ANALYST", "TREND", "BIO_RESEARCH", "SPACE_PIONEER", "CASH_INTEREST", "DIVERSIFY", "LONG_TERM", "CONTRARIAN", "CONCENTRATION" };
         public static string Name(string id)
@@ -36,17 +40,20 @@ namespace BlackWhale.Shared
         }
     }
     [Serializable] public sealed class ShareOrder { public string companyId; public int targetShares; }
+    [Serializable] public struct StockFill { public string playerId; public int day, quantity; }
     [Serializable] public sealed class ShareOwner { public string playerId; public int shares, reserved; }
     [Serializable] public sealed class CompanyShareState
     {
         public string companyId;
         public int totalShares = StockRules.Supply;
         public ShareOwner[] owners;
+        public StockFill[] fills;
     }
-    [Serializable] public sealed class PortfolioHolding { public string companyId; public int shares, consecutiveTurns; }
+    [Serializable] public sealed class PortfolioHolding { public string companyId; public int shares, activeShares, consecutiveTurns; }
     [Serializable] public sealed class StockInsight { public string companyId, message; public int probabilityBps; }
     [Serializable] public sealed class PortfolioState
     {
+        public int processedDay;
         public int capacity = StockRules.Slots, usedSlots, informationDiscount;
         public int draftSharesRemaining = StockRules.SharesPerPick;
         public PortfolioHolding[] holdings;
@@ -55,6 +62,13 @@ namespace BlackWhale.Shared
         public string concentrationCompany;
         public StockInsight[] insights;
         public int CashSlots => capacity - usedSlots;
+        public int AvailableToBuy(CompanyShareState market)
+        {
+            if (market == null) return 0;
+            int mine = holdings?.FirstOrDefault(h => h.companyId == market.companyId)?.activeShares ?? 0;
+            int supply = market.totalShares - (market.owners?.Sum(o => o.shares) ?? 0);
+            return Math.Max(0, Math.Min(CashSlots, Math.Min(StockRules.PersonalLimit - mine, supply)));
+        }
         public int LimitFor(string company) => concentrationCompany == company ? 12 : StockRules.PersonalLimit;
     }
     public interface IStockMarketSystem
@@ -70,6 +84,8 @@ namespace BlackWhale.Shared
         void CompleteAugmentSelection();
         RuleResult ConsumePriority(string playerId);
         int ProcessedDay { get; }
+        void BeginLiveTrading();
+        RuleResult SetPosition(RequestContext context, ShareOrder order);
         void SimulateDay();
         void LockPortfolios();
         int InformationDiscount(string playerId);

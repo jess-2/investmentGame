@@ -33,7 +33,8 @@ namespace BlackWhale.UI.View
             status = UiKit.Label(Root, "", 10, Palette.SubText, TextAnchor.UpperLeft);
             status.name = "InformationRangeCost"; UiKit.Stretch(status.rectTransform, 0, 0, 0, 26);
             confirm = UiKit.Button(Root, "정보 사기", 11, Palette.Accent, Color.white, () => {
-                if (Selection.HasSelection && EndDay >= Math.Max(1, StartDay)) controller.SelectInformationWindow(companyId(), Math.Max(1, StartDay), EndDay);
+                if (controller.Store.Public?.stockSystem == true && controller.Store.Public.publicSelectionActive) controller.SelectInformationWindow(companyId(), 0);
+                else if (Selection.HasSelection && EndDay >= Math.Max(1, StartDay)) controller.SelectInformationWindow(companyId(), Math.Max(1, StartDay), EndDay);
             });
             confirm.name = "ConfirmInformationWindow";
             var rt = (RectTransform)confirm.transform; rt.anchorMin = Vector2.zero; rt.anchorMax = new Vector2(.5f, 0);
@@ -51,13 +52,13 @@ namespace BlackWhale.UI.View
         public void Refresh()
         {
             var state = controller.Store.Public;
-            Root.gameObject.SetActive(state?.windowInformation == true && (state.phase == Protocol.Info || state.phase == Protocol.Selection || state.stockSystem && state.phase == Protocol.Investment));
+            Root.gameObject.SetActive(state?.windowInformation == true && (state.phase == Protocol.Info || !state.stockSystem && state.phase == Protocol.Selection));
             if (state?.windowInformation != true) return;
             bool planning = state.stockSystem && state.phase == Protocol.Investment;
             confirm.gameObject.SetActive(!planning);
-            reserve.gameObject.SetActive(true);
+            reserve.gameObject.SetActive(!state.stockSystem || !state.publicSelectionActive);
             ((RectTransform)reserve.transform).anchorMin = new Vector2(planning ? 0 : .5f, 0);
-            ((RectTransform)confirm.transform).anchorMax = new Vector2(.5f, 0);
+            ((RectTransform)confirm.transform).anchorMax = new Vector2(state.stockSystem && state.publicSelectionActive ? 1 : .5f, 0);
             Selection.FixedPublicWindow = state.publicSelectionActive;
             string id = companyId();
             var company = controller.Store.View?.companies?.FirstOrDefault(c => c.companyId == id);
@@ -72,8 +73,15 @@ namespace BlackWhale.UI.View
                 (choosing ? mine && validPublic : count > 0 && cost <= (controller.Store.View?.coins ?? 0));
             status.text = !Selection.HasSelection ? "차트에서 클릭 또는 드래그로 구간 선택" : StartDay + "~" + EndDay + "일 · 새 " + count + "일 · "
                 + (choosing ? overlap ? "공개 겹침" : mine ? "무료 공개" : "차례 대기" : cost + "코인" + (free > 0 ? " / 무료 " + free + "일" : ""));
+            if (choosing && state.stockSystem) {
+                var options = state.lobbySettings ?? new LobbySettings();
+                bool available = InformationWindowRules.CanRevealPublic(state, id);
+                can = mine && active && !pending && available;
+                status.text = !available ? "공개할 날짜 부족 · 다른 기업을 선택하세요" : mine ? "미공개 " + options.publicRevealDays
+                    + "일 · " + (options.scatteredPublicDays ? "1~30일 중 무작위 추첨" : "연속 구간 추첨") : state.publicSelectionPlayerId + " 선택 중";
+            }
             if (planning && Selection.HasSelection) status.text = StartDay + "일 시가 → " + EndDay + "일 종가";
-            UiKit.SetButton(confirm, pending ? "요청 중…" : choosing ? "공용 공개" : "정보 사기", can,
+            UiKit.SetButton(confirm, pending ? "요청 중…" : choosing ? state.stockSystem ? "이 기업 선택" : "공용 공개" : "정보 사기", can,
                 can ? Palette.Accent : Palette.Disabled, can ? Color.white : Palette.DisabledText);
             // 이미 정한 구간(예약)을 고른 상태면 '예약 취소' = 그 매수·청산 구간을 지운다
             bool existing = Selection.SelectedIndex >= 0;

@@ -73,6 +73,8 @@ namespace BlackWhale.Shared
     public interface IWindowInformationService
     {
         bool UsesWindowInformation { get; }
+        void ConfigureRoom(string roomId, LobbySettings settings);
+        RuleResult RevealPublicDays(RequestContext context, string companyId, int[] days, bool automatic);
         RuleResult RevealWindow(RequestContext context, string companyId, int startDay, bool automatic);
         RuleResult BuyWindow(RequestContext context, string companyId, int startDay, int endDay = 0);
         RuleResult UseInformationItem(RequestContext context, string itemId, string companyId, int startDay, string targetPlayerId, double now);

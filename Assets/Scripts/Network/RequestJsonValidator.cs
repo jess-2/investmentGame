@@ -21,7 +21,7 @@ namespace BlackWhale.Network
             private void Need(char value) { if (!Take(value)) Fail(); }
             private static void Fail() { throw new FormatException("Invalid request JSON or integer field."); }
             private static bool Integer(string field)
-            { return field == "targetShares" || field == "turn" || field == "historyTurn" || field == "bundleIndex" || field == "startDay" || field == "endDay" || field == "weightBps" || field == "entryDay" || field == "exitDay" || field == "bidAmount"; }
+            { return field == "daySeconds" || field == "earlyTurnCoins" || field == "lateTurnCoins" || field == "publicRevealDays" || field == "targetShares" || field == "turn" || field == "historyTurn" || field == "bundleIndex" || field == "startDay" || field == "endDay" || field == "weightBps" || field == "entryDay" || field == "exitDay" || field == "bidAmount"; }
             private void Value(string field, int depth)
             {
                 White(); if (depth > 32 || index >= text.Length) Fail();

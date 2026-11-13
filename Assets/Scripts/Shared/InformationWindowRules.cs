@@ -6,6 +6,24 @@ namespace BlackWhale.Shared
     public static class InformationWindowRules
     {
         public const int Length = 5, MaxStartDay = 26;
+        public static int[] PublicDays(PublicInformationChoice choice) => choice.days ?? Enumerable.Range(choice.startDay, Length).ToArray();
+        public static string PublicChoiceLabel(PublicInformationChoice choice)
+        {
+            var days = PublicDays(choice);
+            bool continuous = days.Length > 0 && days.Last() - days[0] + 1 == days.Length;
+            return choice.playerId + " " + choice.companyId + " " + (continuous && days.Length > 1
+                ? days[0] + "~" + days.Last() : string.Join(",", days)) + "일" + (choice.automatic ? "(자동)" : "");
+        }
+        public static bool CanRevealPublic(PublicState state, string company)
+        {
+            var options = state.lobbySettings ?? new LobbySettings();
+            if (options.publicRevealDays == 0) return false;
+            var used = (state.publicInformation ?? Array.Empty<PublicInformationChoice>()).Where(c => c.companyId == company)
+                .SelectMany(PublicDays).ToArray();
+            if (options.scatteredPublicDays) return 30 - used.Distinct().Count() >= options.publicRevealDays;
+            return Enumerable.Range(1, 31 - options.publicRevealDays).Any(start =>
+                !Enumerable.Range(start, options.publicRevealDays).Any(d => used.Contains(d)));
+        }
         public static int?[] KnownDays(VisibleCompany company)
         {
             var values = new int?[31]; values[0] = 0;
@@ -31,6 +49,6 @@ namespace BlackWhale.Shared
         }
         public static bool OverlapsPublic(PublicState state, string company, int start)
             => (state?.publicInformation ?? Array.Empty<PublicInformationChoice>()).Any(c =>
-                c.companyId == company && start < c.startDay + Length && c.startDay < start + Length);
+                c.companyId == company && PublicDays(c).Any(d => d >= start && d < start + Length));
     }
 }

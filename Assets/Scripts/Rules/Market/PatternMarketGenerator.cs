@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackWhale.Rules
 {
     // Diagnostic metadata stays in the server/editor assembly, never in Shared/network DTOs.
-    public enum StockPatternKind { Rectangle, DoubleTop, DoubleBottom, Flag }
+    public enum StockPatternKind { Rectangle, DoubleTop, DoubleBottom, Flag, AscendingTriangle, DescendingTriangle, RoundingBottom, RoundingTop, MeasuredMoveUp, MeasuredMoveDown, BumpAndRunTop, HeadAndShouldersTop, Pennant, ThreeRisingValleys, VBottom, VTop }
     public enum StockPatternOutcome { Completed, Damaged, Unstructured }
     public sealed class StockPatternSample
     {
@@ -60,8 +60,10 @@ namespace BlackWhale.Rules
         {
             int[][] weights = { new[] {4, 4, 1, 1}, new[] {4, 1, 4, 1}, new[] {1, 4, 4, 1},
                 new[] {1, 4, 1, 4}, new[] {4, 1, 1, 4}, new[] {1, 3, 3, 3} };
-            var w = weights[id == "BANK" ? 0 : id == "FOOD" ? 1 : id == "AUTO" ? 2 : id == "AI" ? 3 : id == "SPACE" ? 4 : 5];
-            int roll = rng.Int(0, 9);
+            int group = id == "BANK" ? 0 : id == "FOOD" ? 1 : id == "AUTO" ? 2 : id == "AI" ? 3 : id == "SPACE" ? 4 : 5;
+            var w = weights[group];
+            int roll = rng.Int(0, 19);
+            if (roll >= 10) return (int)StockPatternKind.AscendingTriangle + group * 2 + (roll >= 15 ? 1 : 0);
             for (int p = 0; p < w.Length; p++) { roll -= w[p]; if (roll < 0) return p; }
             return 3;
         }
@@ -102,6 +104,18 @@ namespace BlackWhale.Rules
                 case 0: y = new[] {0.0, .85, -.65, .95, -.8, .75, .1}; break;
                 case 1: y = new[] {0.0, 1.0, .25, rng.Int(85, 115) / 100.0, -.4, -.85}; break;
                 case 2: y = new[] {0.0, -1.0, -.25, -rng.Int(85, 115) / 100.0, .4, .85}; break;
+                case (int)StockPatternKind.AscendingTriangle: y = new double[] { 0,.85,-.65,.85,-.25,.85,.25,1.2 }; break;
+                case (int)StockPatternKind.DescendingTriangle: y = new double[] { 0,-.85,.65,-.85,.25,-.85,-.25,-1.2 }; break;
+                case (int)StockPatternKind.RoundingBottom: y = new double[] { 0,-.5,-.82,-.98,-1,-.88,-.55,0 }; break;
+                case (int)StockPatternKind.RoundingTop: y = new double[] { 0,.5,.82,.98,1,.88,.55,0 }; break;
+                case (int)StockPatternKind.MeasuredMoveUp: y = new double[] { 0,.4,.85,.55,.4,.85,1.25 }; break;
+                case (int)StockPatternKind.MeasuredMoveDown: y = new double[] { 0,-.4,-.85,-.55,-.4,-.85,-1.25 }; break;
+                case (int)StockPatternKind.BumpAndRunTop: y = new double[] { 0,.2,.4,.65,1.35,.8,.25,-.4 }; break;
+                case (int)StockPatternKind.HeadAndShouldersTop: y = new double[] { 0,.75,.25,1.2,.25,.7,.2,-.5 }; break;
+                case (int)StockPatternKind.Pennant: y = new double[] { 0,1,.52,.88,.62,.78,.68,1.35 }; break;
+                case (int)StockPatternKind.ThreeRisingValleys: y = new double[] { 0,-.65,.28,-.38,.48,-.1,.75,1 }; break;
+                case (int)StockPatternKind.VBottom: y = new double[] { 0,-.42,-.9,-1.25,-.8,-.35,.1 }; break;
+                case (int)StockPatternKind.VTop: y = new double[] { 0,.42,.9,1.25,.8,.35,-.1 }; break;
                 default:
                     double direction = rng.Int(0, 1) == 0 ? -1 : 1;
                     y = new[] {0.0, direction, direction * .7, direction * .8, direction * .55, direction * 1.6}; break;

@@ -10,9 +10,12 @@ namespace BlackWhale.Rules
         private sealed class Slot
         {
             public string Claim;
+            public bool Active;
             public Interval[] Plan = Array.Empty<Interval>();
             public decimal Value = 1;
         }
+        private readonly Dictionary<string, List<StockFill>> fills = InvestmentRules.CompanyIds.ToDictionary(id => id, id => new List<StockFill>());
+        private bool liveTrading;
         public int ProcessedDay { get; private set; }
         private sealed class StockPlayer
         {
@@ -67,13 +70,15 @@ namespace BlackWhale.Rules
         private void BeginStockTurn()
         {
             ProcessedDay = 0;
+            liveTrading = false;
+            foreach (var history in fills.Values) history.Clear();
             foreach (string id in players)
             {
                 if (!stockPlayers.TryGetValue(id, out var p)) stockPlayers.Add(id, p = new StockPlayer());
                 p.Discount = p.PendingDiscount + (p.Augments.Contains("ANALYST") ? 2 : 0); p.PendingDiscount = 0;
                 // The previous turn's profit is already in assets/history. Each new turn
                 // starts with all thirty slots in BANK and every company supply unclaimed.
-                foreach (var slot in p.Slots) { slot.Claim = null; slot.Value = 1; slot.Plan = Array.Empty<Interval>(); }
+                foreach (var slot in p.Slots) { slot.Claim = null; slot.Value = 1; slot.Active = false; slot.Plan = Array.Empty<Interval>(); }
                 foreach (string company in InvestmentRules.CompanyIds) {
                     p.Shares[company] = 0;
                     Array.Clear(p.DailyQuantity[company], 0, 31); p.Gain[company] = 0;
@@ -87,24 +92,64 @@ namespace BlackWhale.Rules
         public CompanyShareState[] GetShareMarket()
             => InvestmentRules.CompanyIds.Select(id => new CompanyShareState { companyId = id,
                 totalShares = id == "BANK" ? StockRules.BankSupply : StockRules.Supply,
-                owners = players.Select(player => PublicOwner(id, player)).ToArray() }).ToArray();
+                fills = fills[id].ToArray(), owners = players.Select(player => PublicOwner(id, player)).ToArray() }).ToArray();
         private ShareOwner PublicOwner(string company, string player)
         {
             var p = stockPlayers[player];
-            if (company == "BANK") return new ShareOwner { playerId = player, shares = BankSlots(p) };
-            int owned = p.Slots.Count(s => s.Claim == company && Invested(s, ProcessedDay));
-            return new ShareOwner { playerId = player, shares = owned, reserved = p.Shares[company] - owned };
+            if (!liveTrading && (ProcessedDay > 0 || p.Shares.Values.Any(q => q > 0)))
+            {
+                if (company == "BANK") return new ShareOwner { playerId = player, shares = BankSlots(p) };
+                int invested = p.Slots.Count(slot => slot.Claim == company && Invested(slot, ProcessedDay));
+                return new ShareOwner { playerId = player, shares = invested, reserved = p.Shares[company] - invested };
+            }
+            return new ShareOwner { playerId = player, shares = p.Shares[company] };
         }
         private bool Invested(Slot slot, int day) => slot.Claim != null && (slot.Plan.Length == 0 ||
             slot.Plan.Any(i => i.entryDay <= day && day <= i.exitDay));
         private int BankSlots(StockPlayer p) => p.Slots.Count(slot => !Invested(slot, ProcessedDay));
+        private static int ActiveShares(StockPlayer p, string company) =>
+            p.Slots.Count(s => s.Active && (s.Claim ?? "BANK") == company);
+
+        public void BeginLiveTrading() { liveTrading = true; }
+        public RuleResult SetPosition(RequestContext context, ShareOrder order)
+        {
+            string error = CheckContext(context, Protocol.Investment);
+            if (error != "") return new RuleResult(error);
+            if (!liveTrading || allLocked || ProcessedDay >= 30) return new RuleResult("ORDER_LOCKED");
+            var p = stockPlayers[context.PlayerId];
+            if (order?.companyId == null || !p.Shares.ContainsKey(order.companyId)) return new RuleResult("INVALID_COMPANY");
+            string company = order.companyId;
+            int target = order.targetShares;
+            int delta = target - p.Shares[company];
+            if (target < 0 || target > StockRules.PersonalLimit) return new RuleResult("SHARE_LIMIT");
+            if (delta == 0) return new RuleResult();
+            if (delta > StockRules.Slots - p.Shares.Values.Sum()) return new RuleResult("PORTFOLIO_FULL");
+            int supply = company == "BANK" ? StockRules.BankSupply : StockRules.Supply;
+            if (delta > supply - stockPlayers.Values.Sum(owner => owner.Shares[company]))
+            {
+                if (p.Augments.Contains("OPPORTUNITY") && p.OpportunityTurn != turn) {
+                    p.OpportunityTurn = turn; p.Discount = Math.Min(4, p.Discount + 2); p.PendingDiscount = 2;
+                }
+                return new RuleResult("INSUFFICIENT_SHARES");
+            }
+            var slots = delta > 0 ? p.Slots.Where(s => s.Claim == null).Take(delta)
+                : p.Slots.Where(s => s.Claim == company).Skip(target);
+            foreach (var slot in slots) {
+                slot.Active = delta > 0;
+                slot.Claim = slot.Active ? company : null;
+            }
+            p.Shares[company] = target;
+            if (target == 0) p.Streak[company] = 0;
+            fills[company].Add(new StockFill { playerId = context.PlayerId, day = ProcessedDay, quantity = delta });
+            return new RuleResult();
+        }
         public PortfolioState GetPortfolio(string playerId)
         {
             if (!stockPlayers.TryGetValue(playerId, out var p)) return new PortfolioState { holdings = new PortfolioHolding[0], augments = new string[0], candidates = new string[0], insights = new StockInsight[0] };
-            return new PortfolioState { usedSlots = p.Shares.Values.Sum(), informationDiscount = p.Discount, augmentChosen = p.Chosen,
+            return new PortfolioState { processedDay = ProcessedDay, usedSlots = p.Shares.Values.Sum(), informationDiscount = p.Discount, augmentChosen = p.Chosen,
                 draftSharesRemaining = p.DraftSharesRemaining,
                 priorityUsed = p.PriorityUsed, concentrationCompany = p.Focus, augments = p.Augments.ToArray(), candidates = (string[])p.Candidates.Clone(),
-                holdings = p.Shares.Select(v => new PortfolioHolding { companyId = v.Key, shares = v.Value, consecutiveTurns = p.Streak[v.Key] }).ToArray(),
+                holdings = p.Shares.Select(v => new PortfolioHolding { companyId = v.Key, shares = v.Value, activeShares = ActiveShares(p, v.Key), consecutiveTurns = p.Streak[v.Key] }).ToArray(),
                 insights = p.Augments.Contains("BIO_RESEARCH") ? new[] { new StockInsight { companyId = "BIO", probabilityBps = BioSuccessChance(stockSeed, turn),
                     message = "BIO 연구 이벤트 성공 가능성 · 최종 수익 보장 아님" } } : new StockInsight[0] };
         }
@@ -166,7 +211,7 @@ namespace BlackWhale.Rules
             {
                 var p = stockPlayers[id];
                 var random = new Random(unchecked(stockSeed ^ turn * 7919 ^ Array.IndexOf(players, id) * 397));
-                p.Candidates = StockRules.Augments.Where(a => a != "FLEXIBLE" && !p.Augments.Contains(a)).OrderBy(a => random.Next()).Take(3).ToArray();
+                p.Candidates = StockRules.Augments.Where(a => a != "FLEXIBLE" && a != "PRIORITY" && a != "CONCENTRATION" && !p.Augments.Contains(a)).OrderBy(a => random.Next()).Take(3).ToArray();
                 p.Chosen = false;
             }
         }
@@ -202,9 +247,10 @@ namespace BlackWhale.Rules
             {
                 foreach (var slot in p.Slots)
                 {
-                    string company = Invested(slot, day) ? slot.Claim : "BANK";
+                    if (liveTrading && !slot.Active) continue;
+                    string company = liveTrading ? slot.Claim ?? "BANK" : Invested(slot, day) ? slot.Claim : "BANK";
                     // Outside the BANK reservation, idle slots remain cash without market returns.
-                    if (company == "BANK" && p.BankPlan.Length > 0 && !p.BankPlan.Any(i => i.entryDay <= day && day <= i.exitDay)) continue;
+                    if (!liveTrading && company == "BANK" && p.BankPlan.Length > 0 && !p.BankPlan.Any(i => i.entryDay <= day && day <= i.exitDay)) continue;
                     decimal open = 10000 + market.ChangeBps(company, day - 1);
                     decimal close = 10000 + market.ChangeBps(company, day);
                     decimal change = slot.Value * (close / open - 1);
@@ -212,7 +258,7 @@ namespace BlackWhale.Rules
                     p.Gain[company] += change;
                     slot.Value += change;
                     p.DailyQuantity[company][day]++;
-                    if (slot.Claim != null && slot.Plan.Length > 0 && slot.Plan.Max(i => i.exitDay) == day)
+                    if (!liveTrading && slot.Claim != null && slot.Plan.Length > 0 && slot.Plan.Max(i => i.exitDay) == day)
                     {
                         p.Shares[slot.Claim]--;
                         if (p.Shares[slot.Claim] == 0) p.Streak[slot.Claim] = 0;
@@ -237,7 +283,7 @@ namespace BlackWhale.Rules
         public void LockPortfolios()
         {
             if (allLocked) return;
-            foreach (var id in players) ApplyStockPlans(id);
+            if (!liveTrading) foreach (var id in players) ApplyStockPlans(id);
             while (ProcessedDay < 30) SimulateDay();
             foreach (var id in players)
                 orders[id] = stockPlayers[id].DailyQuantity.Where(v => v.Value.Max() > 0).Select(v => new Investment {

@@ -65,7 +65,9 @@ namespace BlackWhale.Rules.Information
                     if (room.Players.Add(id)) room.Service.AddPlayer(new PlayerInformationSeed(id, 0));
 
                 // 실제 코인 지급의 규칙과 턴 멱등성은 InformationService가 담당한다.
-                room.Service.GrantTurnCoins(context.Turn, playerIds, UsesWindowInformation);
+                int? grant = roomSettings.TryGetValue(context.RoomId, out var options)
+                    ? (context.Turn >= InformationConstants.LateGrantStartsAtTurn ? options.lateTurnCoins : options.earlyTurnCoins) : (int?)null;
+                room.Service.GrantTurnCoins(context.Turn, playerIds, UsesWindowInformation, grant);
                 room.CurrentTurn = context.Turn;
             }
         }

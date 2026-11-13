@@ -87,8 +87,17 @@ namespace BlackWhale.UI.Dev
             }
             if (s.stockSystem && s.phase == Protocol.Investment)
             {
-                if (!controller.Store.OrderLocked && !controller.Store.HasPending(CommandTypes.SubmitInvestment))
-                    controller.SubmitInvestment(controller.CurrentTradeReservations());
+                foreach (var holding in view.portfolio?.holdings ?? Array.Empty<PortfolioHolding>())
+                {
+                    var supply = s.shareMarket.First(c => c.companyId == holding.companyId);
+                    var company = view.companies.First(c => c.companyId == holding.companyId);
+                    var days = InformationWindowRules.KnownDays(company);
+                    int day = view.portfolio.processedDay;
+                    int? next = days.Skip(day + 1).FirstOrDefault(v => v.HasValue);
+                    int target = next.HasValue && next < days[day] ? 0 : holding.activeShares + view.portfolio.AvailableToBuy(supply);
+                    if (holding.activeShares == target) continue;
+                    controller.SetStockPosition(holding.companyId, target); break;
+                }
                 since = now; return;
             }
             switch (s.phase)

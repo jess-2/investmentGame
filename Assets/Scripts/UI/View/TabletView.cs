@@ -356,7 +356,7 @@ namespace BlackWhale.UI.View
             _turnNoticeBackground.color = mine ? Palette.Accent : Palette.AccentSoft;
             _turnNoticeText.color = mine ? Color.white : Palette.Text;
             _turnNoticeText.text = mine
-                ? "<size=23>지금 내 차례입니다!</size>  공용 정보 선택\n<size=13>공개할 기업과 연속 5일을 선택하세요.</size>"
+                ? "<size=23>지금 내 차례입니다!</size>  공용 정보 선택\n<size=13>공개할 기업을 선택하세요.</size>"
                 : "<size=20>" + state.publicSelectionPlayerId + " 님의 공용 정보 선택 차례</size>\n<size=13>다음 차례까지 공개되는 정보를 확인하세요.</size>";
             _turnHighlight.SetAsLastSibling(); _turnNotice.SetAsLastSibling();
         }
@@ -638,18 +638,17 @@ namespace BlackWhale.UI.View
                 ? (string.IsNullOrEmpty(s.currentPlayerId) ? "선택" : s.currentPlayerId + " 차례")
                 : PhaseNames.Korean(s.phase);
             _timerText.text = "<size=11>" + (remain == 0 ? "서버 진행 대기" : what) + "</size>\n<size=28><b>" + DisplayFormat.Clock(remain) + "</b></size>";
-            if (s.developerMode) _timerText.text = "<size=11>개발자 모드 · " + what + "</size>\n<size=22><b>수동 진행</b></size>";
+            if (s.developerMode && !PhaseClock.HasDeadline(s)) _timerText.text = "<size=11>개발자 모드 · " + what + "</size>\n<size=22><b>수동 진행</b></size>";
             _timerText.color = remain <= 5 && remain > 0 ? Palette.Up : Palette.Text;
 
             bool can = _c.CanCompleteStep();
             bool done = _c.IsDoneForCurrentPhase;
             string label = done ? "완료함 · 대기 중"
-                : s.phase == Protocol.Investment ? (Store.OrderLocked ? "다른 참가자 대기" : s.stockSystem ? "주문 확정 · 진행" : "주문 확정 시 진행")
+                : s.phase == Protocol.Investment ? (Store.OrderLocked ? "다른 참가자 대기" : s.stockSystem ? "실시간 매매 중" : "주문 확정 시 진행")
                 : s.phase == Protocol.Selection ? (s.stockSystem ? "매수 완료 시 진행" : "선택 시 자동 진행")
                 : "완료";
             if (s.developerMode && can) label = "완료";
-            // 주식 투자 단계에서는 이 버튼이 구간(주문) 확정 버튼이다(매수 화면의 별도 확정 버튼은 없앰).
-            _doneButton.name = s.stockSystem && s.phase == Protocol.Investment ? "ConfirmStockIntervals" : "Button";
+            _doneButton.name = s.stockSystem && s.phase == Protocol.Investment ? "LiveTradingStatus" : "Button";
             UiKit.SetButton(_doneButton, label, can, can ? Palette.Accent : Palette.Disabled, can ? Color.white : Palette.DisabledText);
         }
 

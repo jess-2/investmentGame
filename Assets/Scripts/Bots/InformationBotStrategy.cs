@@ -34,9 +34,15 @@ namespace BlackWhale.Bots
         public InformationPurchase NextPublicChoice(PlayerView view, PublicState state)
         {
             foreach (var company in view.companies.OrderBy(c => (state.publicInformation ?? Array.Empty<PublicInformationChoice>()).Count(w => w.companyId == c.companyId)))
+            {
+                if (state.stockSystem) {
+                    if (InformationWindowRules.CanRevealPublic(state, company.companyId)) return new InformationPurchase { CompanyId = company.companyId };
+                    continue;
+                }
                 for (int start = 1; start <= 26; start++)
                     if (!InformationWindowRules.OverlapsPublic(state, company.companyId, start))
                         return new InformationPurchase { CompanyId = company.companyId, StartDay = start };
+            }
             return null;
         }
         public InformationPurchase NextPurchase(PlayerView view, ISet<string> attempted)

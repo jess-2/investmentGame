@@ -78,13 +78,14 @@ namespace BlackWhale.UI.State
                 companySeats = s.companySeats?.Select(Copy).ToArray(),
                 initialPlayerOrder = (string[])s.initialPlayerOrder?.Clone(), seatPlayerIds = (string[])s.seatPlayerIds?.Clone(),
                 botDifficulty = s.botDifficulty, events = s.events?.Select(Copy).ToArray(),
+                lobbySettings = s.lobbySettings?.Copy(),
                 windowInformation = s.windowInformation, publicSelectionActive = s.publicSelectionActive,
                 publicSelectionIndex = s.publicSelectionIndex, publicSelectionPlayerId = s.publicSelectionPlayerId,
                 publicSelectionDeadlineAtServerSeconds = s.publicSelectionDeadlineAtServerSeconds,
                 publicInformation = s.publicInformation?.Select(c => new PublicInformationChoice { playerId = c.playerId,
-                    companyId = c.companyId, startDay = c.startDay, automatic = c.automatic }).ToArray(),
+                    companyId = c.companyId, startDay = c.startDay, automatic = c.automatic, days = (int[])c.days?.Clone() }).ToArray(),
                 stockSystem = s.stockSystem, totalTurns = s.totalTurns, draftOrder = (string[])s.draftOrder?.Clone(),
-                shareMarket = s.shareMarket?.Select(c => new CompanyShareState { companyId = c.companyId, totalShares = c.totalShares,
+                shareMarket = s.shareMarket?.Select(c => new CompanyShareState { companyId = c.companyId, totalShares = c.totalShares, fills = c.fills?.ToArray(),
                     owners = c.owners?.Select(p => new ShareOwner { playerId = p.playerId, shares = p.shares, reserved = p.reserved }).ToArray() }).ToArray()
             };
 
@@ -132,10 +133,11 @@ namespace BlackWhale.UI.State
             recordId = s.recordId, source = s.source, companyId = s.companyId, startDay = s.startDay, paidCoins = s.paidCoins,
             dailyChangesBps = (int[])s.dailyChangesBps?.Clone(), dailyOpenBps = (int[])s.dailyOpenBps?.Clone() };
         public static PortfolioState Copy(PortfolioState s) => s == null ? null : new PortfolioState {
+            processedDay = s.processedDay,
             capacity = s.capacity, usedSlots = s.usedSlots, informationDiscount = s.informationDiscount, draftSharesRemaining = s.draftSharesRemaining,
             augmentChosen = s.augmentChosen, priorityUsed = s.priorityUsed, concentrationCompany = s.concentrationCompany,
             augments = (string[])s.augments?.Clone(), candidates = (string[])s.candidates?.Clone(),
-            holdings = s.holdings?.Select(v => new PortfolioHolding { companyId = v.companyId, shares = v.shares, consecutiveTurns = v.consecutiveTurns }).ToArray(),
+            holdings = s.holdings?.Select(v => new PortfolioHolding { companyId = v.companyId, shares = v.shares, activeShares = v.activeShares, consecutiveTurns = v.consecutiveTurns }).ToArray(),
             insights = s.insights?.Select(v => new StockInsight { companyId = v.companyId, message = v.message, probabilityBps = v.probabilityBps }).ToArray() };
     }
 }

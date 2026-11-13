@@ -20,6 +20,7 @@ namespace BlackWhale.UI.State
     {
         public const string SetReady = "SET_READY";
         public const string StartGame = "START_GAME";
+        public const string SetLobbySettings = "SET_LOBBY_SETTINGS";
         public const string CompletePhase = "COMPLETE_PHASE";
         public const string GetPlayerView = "GET_PLAYER_VIEW";
         public const string BuyInformation = "BUY_INFORMATION";

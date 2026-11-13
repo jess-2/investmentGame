@@ -34,6 +34,30 @@ namespace BlackWhale.UI.View
         public static readonly Color32 AllowedColor = new Color32(0x05, 0x96, 0x69, 0x1F);
         public static readonly Color32 AllowedEdgeColor = new Color32(0x05, 0x96, 0x69, 0x8C);
         public static readonly Color32 HoverColor = new Color32(0x11, 0x18, 0x27, 0x22);
+        public static readonly Color32 CurrentDayColor = new Color32(0xF5, 0x9E, 0x0B, 0x38);
+        public static readonly Color32 CurrentDayEdgeColor = new Color32(0xD9, 0x77, 0x06, 0xD0);
+        private int? _currentDay;
+        private Text _currentDayLabel;
+        public int? CurrentDay => _currentDay;
+        public void SetCurrentDay(int? day)
+        {
+            if (day.HasValue && (day.Value < 1 || day.Value > 30)) day = null;
+            if (_currentDay == day) return;
+            _currentDay = day;
+            if (day.HasValue && _currentDayLabel == null) {
+                var badge = UiKit.Panel(transform, "CurrentDayBadge", new Color32(0xFF, 0xF7, 0xE5, 0xEE), rounded: true);
+                badge.raycastTarget = false;
+                UiKit.Place(badge.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-2, 2), new Vector2(86, 18));
+                _currentDayLabel = UiKit.Label(badge.transform, "", 11, new Color32(0x92, 0x40, 0x0E, 0xFF), TextAnchor.MiddleCenter, FontStyle.Bold);
+                _currentDayLabel.name = "CurrentDayLabel"; _currentDayLabel.raycastTarget = false;
+                UiKit.Stretch(_currentDayLabel.rectTransform);
+            }
+            if (_currentDayLabel != null) {
+                _currentDayLabel.transform.parent.gameObject.SetActive(day.HasValue);
+                _currentDayLabel.text = day.HasValue ? "현재 " + day.Value + "일차" : "";
+            }
+            SetVerticesDirty();
+        }
 
         private DayBar[] _bars = new DayBar[0];
 
@@ -102,6 +126,13 @@ namespace BlackWhale.UI.View
         {
             _bands.Clear();
             if (bands != null) _bands.AddRange(bands);
+            SetVerticesDirty();
+        }
+
+        private StockFill[] fills = new StockFill[0];
+        public void SetFills(StockFill[] value)
+        {
+            fills = value ?? System.Array.Empty<StockFill>();
             SetVerticesDirty();
         }
 
@@ -239,6 +270,15 @@ namespace BlackWhale.UI.View
                 Quad(vh, left, r.yMin, left + 2, r.yMax, edge);
                 Quad(vh, right - 2, r.yMin, right, r.yMax, edge);
             }
+            // Current trading day is independent of the user's selected/reserved ranges.
+            if (_currentDay.HasValue) {
+                float left = DayAxis.LeftX(_currentDay.Value, r.xMin, r.width);
+                float right = left + slot;
+                Quad(vh, left, r.yMin, right, r.yMax, CurrentDayColor);
+                Quad(vh, left, r.yMin, left + 1.5f, r.yMax, CurrentDayEdgeColor);
+                Quad(vh, right - 1.5f, r.yMin, right, r.yMax, CurrentDayEdgeColor);
+                Quad(vh, left, r.yMax - 2, right, r.yMax, CurrentDayEdgeColor);
+            }
             foreach (var b in _bands) Band(vh, r, b.x, b.y, BandColor, true);
             for (int p = 0; p < _revealedInvestments.Length; p++)
             {
@@ -335,6 +375,17 @@ namespace BlackWhale.UI.View
                 foreach (var v in p.intervals)
                 { Endpoint(vh, r, v.entryDay, false, Palette.Player(p.playerId)); Endpoint(vh, r, v.exitDay, true, Palette.Player(p.playerId)); }
 
+            // Separate each seat inside its day column. Buys use its upper half, sells its lower half.
+            foreach (var fill in fills)
+            {
+                int seat = fill.playerId[1] - '1';
+                float x = DayAxis.LeftX(fill.day, r.xMin, r.width) + slot * (seat + .5f) / 4;
+                float halfWidth = Mathf.Min(1, slot / 10);
+                Color color = Palette.Player(fill.playerId);
+                if (fill.quantity > 0) Quad(vh, x - halfWidth, r.center.y, x + halfWidth, r.yMax, color);
+                else for (float y = r.yMin; y < r.center.y; y += 6)
+                    Quad(vh, x - halfWidth, y, x + halfWidth, Mathf.Min(y + 3, r.center.y), color);
+            }
             // 진입일 후보 표식
             if (_candidate.HasValue && _candidate.Value >= 0 && _candidate.Value < DayAxis.Count)
             {

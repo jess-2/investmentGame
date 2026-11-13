@@ -46,8 +46,7 @@ namespace BlackWhale.UI.State
             var s = Store.Public;
             if (s == null || !s.windowInformation || s.paused || Store.OrderLocked ||
                 (s.phase != Protocol.Info && s.phase != Protocol.Selection && s.phase != Protocol.Investment)) return;
-            if (s.stockSystem && !HasCurrentPlayerView) return;
-            if (s.stockSystem && s.phase == Protocol.Selection && !IsMyTurnToSelect()) return;
+            if (s.stockSystem && (!HasCurrentPlayerView || s.phase != Protocol.Info || s.publicSelectionActive)) return;
             Send(CommandTypes.SaveTradePlan, new CommandPayload { investments = CurrentTradeReservations() }, notify: false);
         }
 
@@ -63,9 +62,7 @@ namespace BlackWhale.UI.State
         {
             var s = Store.Public;
             if (s == null || !HasCurrentPlayerView || s.paused || s.publicSelectionActive || Store.OrderLocked || !string.IsNullOrEmpty(Store.EndReason)) return false;
-            if (s.stockSystem) return (s.phase == Protocol.Info ||
-                s.phase == Protocol.Selection && IsMyTurnToSelect() || s.phase == Protocol.Investment &&
-                (companyId == "BANK" || Store.View?.portfolio?.holdings?.Any(h => h.companyId == companyId && h.shares > 0) == true));
+            if (s.stockSystem) return s.phase == Protocol.Info;
             return s.phase == Protocol.Info || s.phase == Protocol.Selection;
         }
 
@@ -91,6 +88,16 @@ namespace BlackWhale.UI.State
         }
 
         public bool IsHost => LocalPlayerId == "P1";
+        public CommandStatus SetLobbySettings(LobbySettings settings)
+        {
+            if (Store.Public == null) return CommandStatus.NoState;
+            if (Store.Public.phase != Protocol.Lobby) return Block(ErrorCodes.WrongPhase);
+            if (!IsHost) return Block("HOST_ONLY");
+            if (settings == null || !settings.IsValid) return Block("INVALID_LOBBY_SETTINGS");
+            if (Store.HasPending(CommandTypes.SetLobbySettings)) return CommandStatus.AlreadyPending;
+            Send(CommandTypes.SetLobbySettings, new CommandPayload { lobbySettings = settings.Copy() });
+            return CommandStatus.Sent;
+        }
         public CommandStatus GetHistory(int turn)
         {
             if (Store.Public == null) return CommandStatus.NoState;
@@ -157,6 +164,14 @@ namespace BlackWhale.UI.State
         }
         public bool CanDraftShares() => HasCurrentPlayerView && Store.Public?.stockSystem == true && IsMyTurnToSelect() && !Store.Public.paused &&
             !Store.HasPending(StockRules.Trade) && !Store.HasPending(StockRules.Pass);
+        public CommandStatus SetStockPosition(string company, int target)
+        {
+            if (!HasCurrentPlayerView || !Store.Public.stockSystem || Store.Public.phase != Protocol.Investment || Store.Public.paused)
+                return Block(ErrorCodes.WrongPhase);
+            if (Store.HasPending(StockRules.Position)) return CommandStatus.AlreadyPending;
+            Send(StockRules.Position, new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = company, targetShares = target } } });
+            return CommandStatus.Sent;
+        }
         public CommandStatus PassStockDraft()
         {
             if (!CanDraftShares()) return Block(ErrorCodes.WrongPhase);
@@ -177,6 +192,7 @@ namespace BlackWhale.UI.State
         {
             if (!HasCurrentPlayerView) return CommandStatus.NoState;
             if (Store.Public?.paused == true) return Block(ErrorCodes.GamePaused);
+            if (Store.Public.stockSystem) return Block(ErrorCodes.WrongPhase);
             if (Store.HasPending(CommandTypes.SubmitInvestment)) return CommandStatus.AlreadyPending;
             if (Store.OrderLocked) return Block(ErrorCodes.OrderLocked);
 
@@ -199,9 +215,8 @@ namespace BlackWhale.UI.State
         public bool CanCompleteStep()
         {
             var s = Store.Public;
-            // 주식 모드 투자 단계: 오른쪽 '완료' 버튼이 곧 주문(구간) 확정 버튼(개발자 모드가 아니어도)
             if (s?.stockSystem == true && s.phase == Protocol.Investment)
-                return HasCurrentPlayerView && !s.paused && !Store.OrderLocked && !Store.HasPending(CommandTypes.SubmitInvestment);
+                return false;
             if (s?.developerMode == true && s.stockSystem && s.phase == Protocol.Selection) return CanDraftShares();
             return CanFinishPhase();
         }
@@ -211,7 +226,6 @@ namespace BlackWhale.UI.State
             if (!CanCompleteStep()) return Block(ErrorCodes.WrongPhase);
             var s = Store.Public;
             if (s.developerMode && s.stockSystem && s.phase == Protocol.Selection) return PassStockDraft();
-            if (s.stockSystem && s.phase == Protocol.Investment) return SubmitInvestment(CurrentTradeReservations());
             return FinishPhase();
         }
 
@@ -257,6 +271,13 @@ namespace BlackWhale.UI.State
             if (s == null || !HasCurrentPlayerView) return CommandStatus.NoState;
             if (s.paused) return Block(ErrorCodes.GamePaused);
             if (s.phase != Protocol.Info) return Block(ErrorCodes.WrongPhase);
+            if (s.stockSystem && s.publicSelectionActive) {
+                if (s.publicSelectionPlayerId != LocalPlayerId) return Block(ErrorCodes.NotYourTurn);
+                if (!InformationWindowRules.CanRevealPublic(s, companyId)) return Block("NO_PUBLIC_DAYS");
+                if (Store.HasPending(CommandTypes.RevealInformationWindow)) return CommandStatus.AlreadyPending;
+                Send(CommandTypes.RevealInformationWindow, new CommandPayload { companyId = companyId });
+                return CommandStatus.Sent;
+            }
             if (endDay == 0) endDay = startDay + 4;
             if (startDay < 1 || endDay > 30 || endDay < startDay || (s.publicSelectionActive && endDay - startDay != 4)) return Block("INVALID_WINDOW");
             if (s.publicSelectionActive && s.publicSelectionPlayerId != LocalPlayerId) return Block(ErrorCodes.NotYourTurn);

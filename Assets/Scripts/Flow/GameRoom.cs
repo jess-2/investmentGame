@@ -47,6 +47,7 @@ namespace BlackWhale.Flow
         private readonly IProgressionService progression;
         private string[] initialOrder = new string[0], seatsForFinalTurns;
         private string botDifficulty = "Normal";
+        private LobbySettings lobbySettings = new LobbySettings();
         private Scoreboard latestBoard;
         private readonly List<Member> members = new List<Member>();
         private readonly Queue<Delivery> outbox = new Queue<Delivery>();
@@ -58,6 +59,8 @@ namespace BlackWhale.Flow
         private readonly string roomId;
         private string phase = Protocol.Lobby;
         private int turn, selectionIndex;
+        private readonly Random publicRandom = new Random();
+        private bool TimedPhase => mode != TimerMode.Developer || StockMode && (phase == Protocol.Investment || phase == Protocol.Info);
         private double origin, phaseEnd, pickEnd;
         private double lastPublishedAt;
         private int publicPickIndex;
@@ -258,7 +261,7 @@ namespace BlackWhale.Flow
                 if (count >= 256) return Reply(member.Id, CommandResult.Fail(command, "RATE_LIMITED"));
                 counts[quotaKey] = count + 1;
                 double received = receivedAtServerSeconds - origin - pausedSeconds;
-                bool expired = mode != TimerMode.Developer && phase != Protocol.Lobby && phase != Protocol.Ended && phaseEnd > 0 &&
+                bool expired = TimedPhase && phase != Protocol.Lobby && phase != Protocol.Ended && phaseEnd > 0 &&
                     received >= (PublicPicking && command.type == "REVEAL_INFORMATION_WINDOW" ? publicPickEnd :
                         phase == Protocol.Selection ? pickEnd : phaseEnd);
                 if (mode != TimerMode.ManualForFixture) AdvanceTo(received);
@@ -274,6 +277,8 @@ namespace BlackWhale.Flow
         }
         private CommandResult Execute(Member member, Command command, double now)
         {
+            if (StockMode && (command.type == "SUBMIT_INVESTMENT" || command.type == "SAVE_TRADE_PLAN" && phase != Protocol.Info))
+                return CommandResult.Fail(command, "WRONG_PHASE");
             if (StockMode && IsStockCommand(command.type)) return ExecuteStockCommand(member.Id, command, now);
             if (StockMode && (command.type == "SELECT_COMPANY" || command.type == "SUBMIT_BID" || command.type == "SELECT_ABILITY"))
                 return CommandResult.Fail(command, "USE_STOCK_DRAFT");
@@ -299,12 +304,27 @@ namespace BlackWhale.Flow
                 PublishState();
                 return Success(command);
             }
+            if (command.type == "SET_LOBBY_SETTINGS")
+            {
+                if (phase != Protocol.Lobby) return CommandResult.Fail(command, "WRONG_PHASE");
+                if (member.Id != "P1") return CommandResult.Fail(command, "HOST_ONLY");
+                if (!StockMode || !WindowMode) return CommandResult.Fail(command, "WINDOWS_UNAVAILABLE");
+                var options = command.payload?.lobbySettings;
+                if (options == null || !options.IsValid) return CommandResult.Fail(command, "INVALID_LOBBY_SETTINGS");
+                if (!lobbySettings.SameAs(options)) {
+                    lobbySettings = options.Copy();
+                    foreach (var participant in members) participant.Ready = false;
+                }
+                PublishState();
+                return Success(command);
+            }
             if (command.type == "START_GAME")
             {
                 if (phase != Protocol.Lobby) return CommandResult.Fail(command, "WRONG_PHASE");
                 if (member.Id != "P1") return CommandResult.Fail(command, "HOST_ONLY");
                 if (members.Count != 4 || members.Any(m => m.Connection == null || !m.Ready))
                     return CommandResult.Fail(command, "NOT_ALL_READY");
+                if (StockMode && WindowMode) WindowInfo.ConfigureRoom(roomId, lobbySettings);
                 origin = clock.Seconds; pausedSeconds = 0;
                 initialOrder = members.OrderBy(m => m.Id, StringComparer.Ordinal).Select(m => m.Id).ToArray();
                 if (!fixedOrder)
@@ -377,7 +397,13 @@ namespace BlackWhale.Flow
                 {
                     if (!PublicPicking) return CommandResult.Fail(command, "PUBLIC_SELECTION_COMPLETE");
                     if (member.Id != order[publicPickIndex]) return CommandResult.Fail(command, "NOT_YOUR_TURN");
-                    operation = WindowInfo.RevealWindow(ctx, payload.companyId, payload.startDay, false);
+                    if (StockMode) {
+                        if (!market.GetCompanyIds().Contains(payload.companyId)) return CommandResult.Fail(command, "INVALID_COMPANY");
+                        var days = RandomPublicDays(payload.companyId);
+                        if (days == null) return CommandResult.Fail(command, "NO_PUBLIC_DAYS");
+                        operation = WindowInfo.RevealPublicDays(ctx, payload.companyId, days, false);
+                    }
+                    else operation = WindowInfo.RevealWindow(ctx, payload.companyId, payload.startDay, false);
                     if (operation.Success) PublicSelected(now);
                 }
                 else
@@ -434,7 +460,7 @@ namespace BlackWhale.Flow
             string[] ids = members.OrderBy(m => m.Id, StringComparer.Ordinal).Select(m => m.Id).ToArray();
             string[] seats = turn >= 9 && seatsForFinalTurns != null ? seatsForFinalTurns :
                 Enumerable.Range(0, 4).Select(i => initialOrder[(i + (turn - 1) % 4) % 4]).ToArray();
-            order = StockMode ? Enumerable.Range(0, StockRules.DraftRounds).SelectMany(_ => seats).ToArray() : seats.Concat(seats.Reverse()).ToArray();
+            order = StockMode ? seats : seats.Concat(seats.Reverse()).ToArray();
             selectionIndex = 0; ordersLocked = false;
             phase = Protocol.Info;
             market.BeginTurn(Context(), ids);
@@ -453,8 +479,8 @@ namespace BlackWhale.Flow
             pickEnd = next == Protocol.Selection ? now + (StockMode ? StockRules.DraftSeconds : 4) : 0;
             if (next == Protocol.Info && WindowMode)
             {
-                publicPickIndex = 0;
-                publicPickEnd = now + settings.PublicInformationPickSeconds;
+                publicPickIndex = StockMode && lobbySettings.publicRevealDays == 0 ? 4 : 0;
+                publicPickEnd = publicPickIndex < 4 ? now + settings.PublicInformationPickSeconds : 0;
             }
             completed.Clear();
             PublishState();
@@ -462,15 +488,6 @@ namespace BlackWhale.Flow
         private void Selected(double now)
         {
             selectionIndex++;
-            if (StockMode)
-            {
-                if (selectionIndex == order.Length) { Enter(Protocol.Investment, now, StockRules.InvestmentSeconds); SendAllViews(); }
-                else {
-                    Stock.BeginDraftPick(order[selectionIndex]);
-                    pickEnd = Math.Min(now + StockRules.DraftSeconds, phaseEnd); PublishState(); SendAllViews();
-                }
-                return;
-            }
             if (selectionIndex == 8) Enter(Protocol.Investment, now, 23);
             else { pickEnd = Math.Min(now + 4, phaseEnd); PublishState(); }
         }
@@ -487,14 +504,21 @@ namespace BlackWhale.Flow
         private void AdvanceTo(double now)
         {
             while (PublicPicking && members.Any(m => m.Id == order[publicPickIndex] && m.Connection == null)) AutoPublicSelect(Math.Min(now, publicPickEnd));
-            if (mode == TimerMode.Developer) return;
-            while (phase != Protocol.Lobby && phase != Protocol.Ended && phaseEnd > 0 &&
+            while (TimedPhase && phase != Protocol.Lobby && phase != Protocol.Ended && phaseEnd > 0 &&
                 now >= NextDeadline)
             {
                 if (PublicPicking) AutoPublicSelect(publicPickEnd);
                 else if (phase == Protocol.Selection) AutoSelect(pickEnd);
                 else NextPhase(phaseEnd);
                 while (PublicPicking && members.Any(m => m.Id == order[publicPickIndex] && m.Connection == null)) AutoPublicSelect(Math.Min(now, publicPickEnd));
+            }
+            if (StockMode && phase == Protocol.Investment)
+            {
+                int day = Math.Min(30, (int)Math.Floor((now - phaseEnd + 30 * lobbySettings.daySeconds) / lobbySettings.daySeconds));
+                if (Stock.ProcessedDay < day) {
+                    while (Stock.ProcessedDay < day) Stock.SimulateDay();
+                    SendAllViews();
+                }
             }
         }
         // Explicit server-side fixture control; never exposed as a network command.
@@ -537,11 +561,49 @@ namespace BlackWhale.Flow
             publicPickEnd = publicPickIndex < 4 ? Math.Min(phaseEnd, now + settings.PublicInformationPickSeconds) : 0;
             PublishState();
         }
+        private int[] RandomPublicDays(string company)
+        {
+            var choices = WindowInfo.GetPublicInformation(Context());
+            int length = lobbySettings.publicRevealDays;
+            var used = new bool[31];
+            foreach (var choice in choices.Where(c => c.companyId == company))
+                foreach (int day in InformationWindowRules.PublicDays(choice)) used[day] = true;
+            if (length == 0) return null;
+            if (lobbySettings.scatteredPublicDays) {
+                var freeDays = Enumerable.Range(1, 30).Where(d => !used[d]).ToArray();
+                if (freeDays.Length < length) return null;
+                for (int i = freeDays.Length - 1; i > 0; i--) {
+                    int j = publicRandom.Next(i + 1); int temp = freeDays[i]; freeDays[i] = freeDays[j]; freeDays[j] = temp;
+                }
+                return freeDays.Take(length).OrderBy(d => d).ToArray();
+            }
+            var free = Enumerable.Range(1, 31 - length).Where(start => !Enumerable.Range(start, length).Any(d => used[d])).ToArray();
+            if (free.Length == 0) return null;
+            // Preserve room for repeated choices when all four players can fit in this company.
+            var spacious = free.Where(start => {
+                int run = 0, available = 0;
+                for (int d = 1; d <= 30; d++) {
+                    if (used[d] || d >= start && d < start + length) run = 0;
+                    else if (++run == length) { available++; run = 0; }
+                }
+                return available >= 3 - choices.Length;
+            }).ToArray();
+            if (spacious.Length > 0) free = spacious;
+            return Enumerable.Range(free[publicRandom.Next(free.Length)], length).ToArray();
+        }
         private void AutoPublicSelect(double now)
         {
             var choices = WindowInfo.GetPublicInformation(Context());
             // Public masks only: automatic choice must not use hidden prices or profitability.
             foreach (var company in market.GetCompanyIds().OrderBy(id => choices.Count(c => c.companyId == id)))
+            {
+                if (StockMode) {
+                    var days = RandomPublicDays(company);
+                    if (days == null) continue;
+                    var result = WindowInfo.RevealPublicDays(Context(order[publicPickIndex], "auto-public-" + publicPickIndex), company, days, true);
+                    if (!result.Success) throw new InvalidOperationException("Invalid automatic public dates: " + result.ErrorCode);
+                    PublicSelected(now); SendAllViews(); return;
+                }
                 for (int start = 1; start <= 26; start++)
                 {
                     if (choices.Any(c => c.companyId == company && start < c.startDay + 5 && c.startDay < start + 5)) continue;
@@ -551,6 +613,7 @@ namespace BlackWhale.Flow
                     foreach (var member in members) SendView(member.Id);
                     return;
                 }
+            }
             throw new InvalidOperationException("No public information candidate.");
         }
         private void NextPhase(double now)
@@ -572,10 +635,11 @@ namespace BlackWhale.Flow
                     foreach (var member in members) SendView(member.Id);
                     break;
                 case Protocol.Info:
-                    if (StockMode) BeginStockDraft(now);
+                    if (StockMode) { Stock.BeginLiveTrading(); Enter(Protocol.Investment, now, 30 * lobbySettings.daySeconds); SendAllViews(); }
                     else Enter(Protocol.Selection, now, 32);
                     break;
                 case Protocol.Investment:
+                    if (StockMode) { RevealStockPortfolio(now); break; }
                     foreach (Member member in members.Where(m => !market.IsOrderLocked(m.Id)))
                     {
                         string[] companies = market.GetSelectedCompanies(member.Id);
@@ -590,7 +654,6 @@ namespace BlackWhale.Flow
                             type = "SUBMIT_INVESTMENT_RESULT", requestId = "auto-order", turn = turn, success = true, payload = payload } });
                         SendView(member.Id);
                     }
-                    if (StockMode) { RevealStockPortfolio(now); break; }
                     if (!ordersLocked) { market.LockAllOrders(Context()); ordersLocked = true; }
                     Enter(Protocol.Reveal, now, 10);
                     Broadcast(new ServerMessage { type = "MARKET_REVEAL", revealedMarket = market.GetRevealedMarket(Context()) });
@@ -628,15 +691,16 @@ namespace BlackWhale.Flow
         {
             lock (gate) return new PublicState { roomId = roomId, turn = turn, phase = phase,
                 selectionIndex = selectionIndex, currentPlayerId = CurrentPlayer, paused = paused, developerMode = mode == TimerMode.Developer,
-                serverElapsedSeconds = phase != Protocol.Lobby ? Now : 0, phaseEndsAtServerSeconds = mode == TimerMode.Developer ? 0 : phaseEnd,
+                serverElapsedSeconds = phase != Protocol.Lobby ? Now : 0, phaseEndsAtServerSeconds = TimedPhase ? phaseEnd : 0,
                 selectionDeadlineAtServerSeconds = mode == TimerMode.Developer ? 0 : pickEnd,
                 initialPlayerOrder = (string[])initialOrder.Clone(), seatPlayerIds = order.Take(4).ToArray(),
                 botDifficulty = botDifficulty, events = progression?.GetPublicEvents(roomId) ?? new PublicEvent[0],
                 stockSystem = StockMode, totalTurns = settings.Turns, draftOrder = (string[])order.Clone(),
+                lobbySettings = lobbySettings.Copy(),
                 shareMarket = StockMode && turn > 0 ? Stock.GetShareMarket() : new CompanyShareState[0],
                 windowInformation = WindowMode, publicSelectionActive = PublicPicking, publicSelectionIndex = publicPickIndex,
                 publicSelectionPlayerId = PublicPicking ? order[publicPickIndex] : "",
-                publicSelectionDeadlineAtServerSeconds = PublicPicking && mode != TimerMode.Developer ? publicPickEnd : 0,
+                publicSelectionDeadlineAtServerSeconds = PublicPicking && TimedPhase ? publicPickEnd : 0,
                 publicInformation = WindowMode && turn > 0 ? WindowInfo.GetPublicInformation(Context()) : new PublicInformationChoice[0],
                 players = members.OrderBy(m => m.Id, StringComparer.Ordinal).Select(m => new Player { playerId = m.Id, displayName = m.Name,
                     connected = m.Connection != null, ready = m.Ready, isBot = m.IsBot }).ToArray(),
@@ -684,6 +748,7 @@ namespace BlackWhale.Flow
                     startDay = input.payload.startDay, endDay = input.payload.endDay, itemId = input.payload.itemId, targetPlayerId = input.payload.targetPlayerId,
                     abilityId = input.payload.abilityId, bidAmount = input.payload.bidAmount, useFreePass = input.payload.useFreePass,
                     historyTurn = input.payload.historyTurn,
+                    lobbySettings = input.payload.lobbySettings?.Copy(),
                     augmentId = input.payload.augmentId,
                     shareOrders = input.payload.shareOrders?.Select(v => v == null ? null : new ShareOrder { companyId = v.companyId, targetShares = v.targetShares }).ToArray(),
                     seatPreferences = (string[])input.payload.seatPreferences?.Clone() } };
@@ -709,6 +774,12 @@ namespace BlackWhale.Flow
                     writer.Write(c.payload.startDay); writer.Write(c.payload.endDay); writer.Write(c.payload.itemId ?? ""); writer.Write(c.payload.targetPlayerId ?? "");
                     writer.Write(c.payload.abilityId ?? ""); writer.Write(c.payload.bidAmount); writer.Write(c.payload.useFreePass);
                     writer.Write(c.payload.historyTurn);
+                    writer.Write(c.payload.lobbySettings != null);
+                    if (c.payload.lobbySettings != null) {
+                        writer.Write(c.payload.lobbySettings.earlyTurnCoins); writer.Write(c.payload.lobbySettings.lateTurnCoins);
+                        writer.Write(c.payload.lobbySettings.publicRevealDays); writer.Write(c.payload.lobbySettings.scatteredPublicDays);
+                        writer.Write(c.payload.lobbySettings.daySeconds);
+                    }
                     writer.Write(c.payload.augmentId ?? "");
                     writer.Write(c.payload.shareOrders?.Length ?? -1);
                     foreach (var v in c.payload.shareOrders ?? new ShareOrder[0])

@@ -27,6 +27,8 @@ namespace BlackWhale.UI.View
 
         private InvestmentDraft _draft;
         private int _draftTurn = -1;
+        private LobbySettings _lobbySettingsDraft, _lobbySettingsBase;
+        private Button _lobbyStart;
 
         // 날짜 입력 중에는 화면 전체를 다시 그리지 않고 아래 요소만 바로 갱신한다
         // (전체를 다시 그리면 입력 직후 '주문 확정' 첫 클릭이 사라질 수 있음).
@@ -129,11 +131,16 @@ namespace BlackWhale.UI.View
             UiKit.Stretch(title.rectTransform, 24, 18, 24, 0);
 
             var players = s.players ?? new Player[0];
+            bool configurable = s.stockSystem && s.windowInformation;
             for (int i = 0; i < 4; i++)
             {
                 var p = i < players.Length ? players[i] : null;
                 var row = UiKit.Panel(root, "Player" + (i + 1), p == null ? Palette.Disabled : Palette.Screen, rounded: true);
                 UiKit.Place(row.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -60 - i * 54), new Vector2(520, 46));
+                if (configurable) {
+                    row.rectTransform.anchorMin = new Vector2(0, 1); row.rectTransform.anchorMax = new Vector2(.49f, 1);
+                    row.rectTransform.offsetMin = new Vector2(20, -106 - i * 54); row.rectTransform.offsetMax = new Vector2(-8, -60 - i * 54);
+                }
                 string text = p == null
                     ? "<color=#9CA3AF>빈 자리 · 접속 대기</color>"
                     : "<color=#" + ColorUtility.ToHtmlStringRGB(Palette.Player(p.playerId)) + ">■</color>  <b>" + p.playerId + "</b>  "
@@ -145,6 +152,7 @@ namespace BlackWhale.UI.View
                 label.resizeTextMaxSize = 15;
                 UiKit.Stretch(label.rectTransform, 16, 0, 16, 0);
             }
+            if (configurable) BuildLobbySettings(root, s);
 
             bool ready = _c.IsLocalReady;
             bool readyPending = _c.Store.HasPending(CommandTypes.SetReady);
@@ -156,12 +164,14 @@ namespace BlackWhale.UI.View
 
             if (_c.IsHost)
             {
-                bool can = _c.AllPlayersReady && !_c.Store.HasPending(CommandTypes.StartGame) && _lobby?.Busy != true;
+                bool can = _c.AllPlayersReady && !_c.Store.HasPending(CommandTypes.StartGame)
+                    && !_c.Store.HasPending(CommandTypes.SetLobbySettings) && _lobby?.Busy != true;
                 var start = UiKit.Button(root, "게임 시작", 16, can ? Palette.Success : Palette.Disabled, can ? Color.white : Palette.DisabledText,
-                    () => _c.StartGame());
+                    () => { if (!LobbySettingsDirty) _c.StartGame(); });
                 UiKit.Place((RectTransform)start.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(100, 24), new Vector2(180, 46));
                 start.interactable = can;
                 start.name = "StartGame";
+                _lobbyStart = start; UpdateLobbyStart();
                 if (_lobby != null)
                 {
                     var fill = UiKit.Button(root, "빈자리를 BOT으로 채우기", 13, Palette.AccentSoft, Palette.Accent, _lobby.FillBots);
@@ -178,7 +188,75 @@ namespace BlackWhale.UI.View
             {
                 var status = UiKit.Label(root, _lobby.Status, 12, Palette.SubText);
                 UiKit.Place(status.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(640, 54));
+                if (configurable) {
+                    status.rectTransform.anchorMin = Vector2.zero; status.rectTransform.anchorMax = new Vector2(.49f, 0);
+                    status.rectTransform.offsetMin = new Vector2(20, 120); status.rectTransform.offsetMax = new Vector2(-8, 174);
+                }
             }
+        }
+
+        private bool LobbySettingsDirty => _c.Store.Public?.stockSystem == true && _c.Store.Public.windowInformation
+            && _lobbySettingsDraft != null && !_lobbySettingsDraft.SameAs(_c.Store.Public.lobbySettings ?? new LobbySettings());
+
+        private void UpdateLobbyStart()
+        {
+            if (_lobbyStart == null || !_c.IsHost) return;
+            bool dirty = LobbySettingsDirty;
+            bool can = !dirty && _c.AllPlayersReady && !_c.Store.HasPending(CommandTypes.StartGame)
+                && !_c.Store.HasPending(CommandTypes.SetLobbySettings) && _lobby?.Busy != true;
+            UiKit.SetButton(_lobbyStart, dirty ? "설정 적용 후 시작" : "게임 시작", can,
+                can ? Palette.Success : Palette.Disabled, can ? Color.white : Palette.DisabledText);
+        }
+
+        private void BuildLobbySettings(RectTransform root, PublicState state)
+        {
+            var current = state.lobbySettings ?? new LobbySettings();
+            if (_lobbySettingsDraft == null || !current.SameAs(_lobbySettingsBase)) {
+                _lobbySettingsBase = current.Copy(); _lobbySettingsDraft = current.Copy();
+            }
+            bool editable = _c.IsHost && !_c.Store.HasPending(CommandTypes.SetLobbySettings);
+            var panel = UiKit.Rect(root, "LobbySettings");
+            panel.anchorMin = new Vector2(.5f, 1); panel.anchorMax = Vector2.one;
+            panel.offsetMin = new Vector2(8, -332); panel.offsetMax = new Vector2(-20, -48);
+            var title = UiKit.Label(panel, "게임 설정" + (_c.IsHost ? " · 방장" : " · 방장이 변경할 수 있습니다"), 15, Palette.Text, TextAnchor.UpperLeft, FontStyle.Bold);
+            UiKit.Stretch(title.rectTransform, 0, 0, 0, 258);
+            LobbyNumber(panel, "EarlyTurnCoins", "1~5턴 지급 코인 (0~999)", _lobbySettingsDraft.earlyTurnCoins, 30, editable, v => _lobbySettingsDraft.earlyTurnCoins = v);
+            LobbyNumber(panel, "LateTurnCoins", "6턴 이후 지급 코인 (0~999)", _lobbySettingsDraft.lateTurnCoins, 68, editable, v => _lobbySettingsDraft.lateTurnCoins = v);
+            LobbyNumber(panel, "PublicRevealDays", "선택당 공개 일수 (0~30)", _lobbySettingsDraft.publicRevealDays, 106, editable, v => _lobbySettingsDraft.publicRevealDays = v);
+            LobbyNumber(panel, "DaySeconds", "일차당 시간 (1~60초)", _lobbySettingsDraft.daySeconds, 144, editable, v => _lobbySettingsDraft.daySeconds = v);
+            bool scattered = _lobbySettingsDraft.scatteredPublicDays;
+            for (int i = 0; i < 2; i++) {
+                bool mode = i == 1, selected = scattered == mode;
+                var button = UiKit.Button(panel, mode ? "무작위 날짜" : "연속 구간", 12, selected ? Palette.Accent : Palette.AccentSoft,
+                    selected ? Color.white : Palette.Accent, () => { _lobbySettingsDraft.scatteredPublicDays = mode; Refresh(); });
+                button.name = mode ? "PublicRevealScattered" : "PublicRevealContiguous";
+                button.interactable = editable;
+                var rect = (RectTransform)button.transform;
+                rect.anchorMin = new Vector2(i * .5f, 1); rect.anchorMax = new Vector2((i + 1) * .5f, 1);
+                rect.offsetMin = new Vector2(0, -216); rect.offsetMax = new Vector2(-4, -184);
+            }
+            var hint = UiKit.Label(panel, "매 턴 지급 · 공개 0일 = 공개 생략 · 설정 변경 시 준비 해제", 10, Palette.SubText, TextAnchor.UpperLeft);
+            hint.rectTransform.anchorMin = new Vector2(0, 1); hint.rectTransform.anchorMax = Vector2.one;
+            hint.rectTransform.offsetMin = new Vector2(0, -242); hint.rectTransform.offsetMax = new Vector2(0, -222);
+            if (_c.IsHost) {
+                var apply = UiKit.Button(panel, editable ? "설정 적용" : "적용 중…", 12, Palette.Accent, Color.white,
+                    () => _c.SetLobbySettings(_lobbySettingsDraft));
+                apply.name = "ApplyLobbySettings"; apply.interactable = editable;
+                UiKit.Place((RectTransform)apply.transform, new Vector2(1, 0), new Vector2(1, 0), Vector2.zero, new Vector2(120, 30));
+            }
+        }
+
+        private void LobbyNumber(RectTransform parent, string name, string caption, int value, float top, bool editable, System.Action<int> changed)
+        {
+            var label = UiKit.Label(parent, caption, 12, Palette.Text, TextAnchor.MiddleLeft);
+            label.rectTransform.anchorMin = new Vector2(0, 1); label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = new Vector2(0, -top - 30); label.rectTransform.offsetMax = new Vector2(-70, -top);
+            var field = UiKit.NumberInput(parent, value.ToString(), 14); field.name = name;
+            field.characterLimit = 3;
+            if (field.placeholder is Text placeholder) placeholder.text = name == "PublicRevealDays" ? "0~30" : name == "DaySeconds" ? "1~60" : "0~999";
+            field.interactable = editable;
+            UiKit.Place((RectTransform)field.transform, Vector2.one, Vector2.one, new Vector2(0, -top), new Vector2(64, 30));
+            field.onValueChanged.AddListener(text => { changed(int.TryParse(text, out var number) ? number : -1); UpdateLobbyStart(); });
         }
 
         private void BuildEnded()

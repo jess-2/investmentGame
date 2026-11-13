@@ -22,12 +22,14 @@ namespace BlackWhale.Tests
             public readonly SharedInformationService Info;
             public readonly GameRoom Room;
             private int sequence;
-            public Harness(TimerMode mode = TimerMode.Realtime)
+            public Harness(TimerMode mode = TimerMode.Realtime, LobbySettings lobbyOptions = null)
             {
                 Info = new SharedInformationService(Market);
                 Room = new GameRoom("STOCK", Market, Info, Clock, mode: mode, fixedOrderForFixture: true,
                     settings: new GameSettings(5, 6, 2, enableProgressionFeatures: false));
-                for (int i = 1; i <= 4; i++) { Room.Join("c" + i, "Player " + i); Send(i, "SET_READY", new CommandPayload { ready = true }); }
+                for (int i = 1; i <= 4; i++) Room.Join("c" + i, "Player " + i);
+                if (lobbyOptions != null) Check(Send(1, "SET_LOBBY_SETTINGS", new CommandPayload { lobbySettings = lobbyOptions }).success, "host configures lobby");
+                for (int i = 1; i <= 4; i++) Send(i, "SET_READY", new CommandPayload { ready = true });
                 Send(1, "START_GAME");
             }
             public CommandResult Send(int player, string type, CommandPayload payload = null)
@@ -40,7 +42,7 @@ namespace BlackWhale.Tests
                     Check(Room.Snapshot().phase == Protocol.Info, "information stays open until everyone finishes");
                     Check(Send(player, "COMPLETE_PHASE").success, "finish information");
                 }
-                Check(Room.Snapshot().phase == Protocol.Selection, "four completions start trading immediately");
+                Check(Room.Snapshot().phase == Protocol.Investment, "four completions start trading immediately");
             }
             public void FinishPublic()
             {
@@ -59,7 +61,7 @@ namespace BlackWhale.Tests
                     Check(Send(int.Parse(id.Substring(1)), StockRules.Choose, new CommandPayload { augmentId = p.candidates[0], companyId = "AI" }).success, "choose own candidate");
                 }
             }
-            public CommandResult Trade(int player, string company, int shares) => Send(player, StockRules.Trade,
+            public CommandResult Trade(int player, string company, int shares) => Send(player, StockRules.Position,
                 new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = company, targetShares = shares } } });
             public void Deadline() { Clock.Seconds = Room.Snapshot().phase == Protocol.Selection ? Room.Snapshot().selectionDeadlineAtServerSeconds : Room.Snapshot().phaseEndsAtServerSeconds; Room.Tick(); }
         }
@@ -67,10 +69,12 @@ namespace BlackWhale.Tests
         {
             var names = new List<string>();
             Action<string, Action> run = (name, test) => { test(); names.Add("STOCK-SYSTEM/" + name); };
-            run("twenty-shares-thirty-slots-public-ownership-and-atomic-draft", Draft);
-            run("eight-seven-second-turns-then-private-intervals-and-market-reveal", Timeline);
-            run("fifteen-shares-per-pick-multicompany-atomicity-replay-and-reset", PickBudget);
-            run("information-reservations-do-not-claim-shares-and-survive-automatic-trading", InformationReservations);
+            run("intraday-position-changes-and-settlement", Draft);
+            run("information-then-thirty-live-closes-and-market-reveal", Timeline);
+            run("private-reservations-live-supply-limits-public-fills", PickBudget);
+            run("company-only-public-picks-never-overlap", CompanyOnlyPublicPicks);
+            run("host-lobby-settings-coins-and-public-date-modes", ConfigurableLobby);
+            run("configured-day-duration-boundaries-pause-and-catch-up", ConfiguredDayTiming);
             run("new-turn-snapshots-clear-old-private-data-and-periodic-state-keeps-deadlines", TurnSnapshots);
             run("all-unused-slots-automatically-fill-one-hundred-twenty-bank-shares", Bank);
             run("slot-weighted-multicompany-cash-and-settlement-replay", Settlement);
@@ -83,84 +87,181 @@ namespace BlackWhale.Tests
             run("all-augment-effect-boundaries-information-ledger-and-long-hold-bonuses", Effects);
             return names.ToArray();
         }
+
+        private static void ConfigurableLobby()
+        {
+            var market = MarketService.CreateStockSystem(811);
+            var info = new SharedInformationService(market);
+            var room = new GameRoom("OPTIONS", market, info, new TestClock(), fixedOrderForFixture: true);
+            for (int i = 1; i <= 4; i++) room.Join("option" + i, "Player " + i);
+            int sequence = 0;
+            Func<int, string, CommandPayload, CommandResult> send = (player, type, payload) => room.ProcessCommand("option" + player,
+                new Command { type = type, turn = room.Snapshot().turn, requestId = "option-" + (++sequence), payload = payload });
+            for (int i = 1; i <= 4; i++) send(i, "SET_READY", new CommandPayload { ready = true });
+            var options = new LobbySettings { earlyTurnCoins = 7, lateTurnCoins = 11, publicRevealDays = 8, scatteredPublicDays = true };
+            Check(send(2, "SET_LOBBY_SETTINGS", new CommandPayload { lobbySettings = options }).errorCode == "HOST_ONLY", "guest cannot change settings");
+            foreach (var invalid in new[] {
+                new LobbySettings { earlyTurnCoins = -1 }, new LobbySettings { lateTurnCoins = 1000 },
+                new LobbySettings { publicRevealDays = -1 }, new LobbySettings { publicRevealDays = 31 },
+                new LobbySettings { daySeconds = 0 }, new LobbySettings { daySeconds = 61 } })
+                Check(send(1, "SET_LOBBY_SETTINGS", new CommandPayload { lobbySettings = invalid }).errorCode == "INVALID_LOBBY_SETTINGS", "server rejects invalid ranges");
+            Check(send(1, "SET_LOBBY_SETTINGS", new CommandPayload { lobbySettings = options }).success, "host applies settings");
+            Check(room.Snapshot().players.All(p => !p.ready), "changed rules reset all readiness");
+            var states = room.DrainMessages().Where(d => d.Message.type == "PUBLIC_STATE" && options.SameAs(d.Message.state.lobbySettings)).ToArray();
+            Check(states.Select(d => d.PlayerId).Distinct().Count() == 4, "all connected players receive settings");
+            options.earlyTurnCoins = 999;
+            var snapshot = room.Snapshot(); snapshot.lobbySettings.earlyTurnCoins = 888;
+            Check(room.Snapshot().lobbySettings.earlyTurnCoins == 7, "payload and snapshot cannot mutate server settings");
+            var duplicate = new Command { type = "SET_LOBBY_SETTINGS", turn = 0, requestId = "same-settings", payload = new CommandPayload { lobbySettings = room.Snapshot().lobbySettings } };
+            Check(room.ProcessCommand("option1", duplicate).success, "settings command succeeds");
+            duplicate.payload.lobbySettings.publicRevealDays++;
+            Check(room.ProcessCommand("option1", duplicate).errorCode == "REQUEST_ID_CONFLICT", "request fingerprint includes settings");
+            Check(send(1, "START_GAME", new CommandPayload()).errorCode == "NOT_ALL_READY", "players must ready after settings change");
+            for (int i = 1; i <= 4; i++) send(i, "SET_READY", new CommandPayload { ready = true });
+            Check(send(1, "START_GAME", new CommandPayload()).success, "start configured game");
+            Check(send(1, "SET_LOBBY_SETTINGS", new CommandPayload { lobbySettings = new LobbySettings() }).errorCode == "WRONG_PHASE", "settings lock after start");
+            Check(info.GetCoins("OPTIONS", "P1") == 7, "configured first-turn grant");
+            info.GrantTurnCoins(new RequestContext("OPTIONS", 1, Protocol.Info), Players);
+            Check(info.GetCoins("OPTIONS", "P1") == 7, "configured grant remains idempotent");
+            info.GrantTurnCoins(new RequestContext("OPTIONS", 6, Protocol.Info), Players);
+            Check(info.GetCoins("OPTIONS", "P1") == 18, "configured late-turn grant accumulates normally");
+            info.GrantTurnCoins(new RequestContext("OTHER-OPTIONS", 1, Protocol.Info), Players);
+            Check(info.GetCoins("OTHER-OPTIONS", "P1") == 15, "settings do not leak between rooms");
+
+            foreach (bool scattered in new[] { false, true })
+            foreach (int count in new[] { 0, 1, 7, 30 }) {
+                var h = new Harness(lobbyOptions: new LobbySettings { earlyTurnCoins = 9, publicRevealDays = count, scatteredPublicDays = scattered });
+                h.Choose();
+                if (count == 0) {
+                    Check(!h.Room.Snapshot().publicSelectionActive && h.Room.Snapshot().publicInformation.Length == 0, "zero days skip public selection");
+                    Check(h.Send(1, "BUY_INFORMATION_WINDOW", new CommandPayload { companyId = "AI", startDay = 1, endDay = 1 }).success, "private purchase works without public choices");
+                    continue;
+                }
+                for (int pick = 0; pick < 4; pick++) {
+                    var state = h.Room.Snapshot();
+                    int player = int.Parse(state.publicSelectionPlayerId.Substring(1));
+                    string company = count == 30 ? new[] { "AI", "BANK", "FOOD", "BIO" }[pick] : "AI";
+                    Check(h.Send(player, "REVEAL_INFORMATION_WINDOW", new CommandPayload { companyId = company, startDay = -999, endDay = 999 }).success, "server selects dates independently of client range");
+                    var choice = h.Room.Snapshot().publicInformation.Single(c => c.playerId == "P" + player);
+                    Check(choice.days.Length == count && choice.days.Distinct().Count() == count && choice.days.All(d => d >= 1 && d <= 30), "requested number of unique valid days");
+                    if (!scattered) Check(choice.days.Last() - choice.days[0] + 1 == count, "contiguous mode returns a consecutive range");
+                    var all = h.Room.Snapshot().publicInformation.Where(c => c.companyId == company).SelectMany(c => c.days).ToArray();
+                    Check(all.Distinct().Count() == all.Length, "public dates never overlap in one company");
+                    foreach (string id in Players) {
+                        var view = h.Info.BuildPlayerView(new RequestContext("STOCK", 1, Protocol.Info, id), h.Market.GetOwnInvestmentState(id));
+                        var windows = view.companies.Single(c => c.companyId == company).visibleWindows.Where(w => w.source == "PUBLIC").ToArray();
+                        Check(windows.Sum(w => w.dailyChangesBps.Length) == all.Length, "every player receives only the selected dates");
+                        Check(all.All(d => InformationWindowRules.KnownDays(view.companies.Single(c => c.companyId == company))[d].HasValue), "scattered days reach chart data");
+                    }
+                    if (count == 30 && pick < 3) {
+                        int next = int.Parse(h.Room.Snapshot().publicSelectionPlayerId.Substring(1));
+                        Check(h.Send(next, "REVEAL_INFORMATION_WINDOW", new CommandPayload { companyId = company }).errorCode == "NO_PUBLIC_DAYS", "exhausted company returns an actionable error");
+                    }
+                }
+                Check(!h.Room.Snapshot().publicSelectionActive && h.Room.Snapshot().publicInformation.Length == 4, "scattered records still count as four choices");
+                if (count == 7) {
+                    var choice = h.Room.Snapshot().publicInformation[0];
+                    var before = h.Info.GetCoins("STOCK", "P1");
+                    Check(h.Send(1, "BUY_INFORMATION_WINDOW", new CommandPayload { companyId = "AI", startDay = 1, endDay = 30 }).success, "buy remaining days after public choices");
+                    Check(h.Info.GetCoins("STOCK", "P1") == before - 2, "public dates are free when buying a mixed range");
+                }
+                var timeout = new Harness(TimerMode.ManualForFixture, new LobbySettings { publicRevealDays = count, scatteredPublicDays = scattered });
+                timeout.Choose();
+                while (timeout.Room.Snapshot().publicSelectionActive) timeout.Room.AdvanceManualPhase();
+                Check(timeout.Room.Snapshot().publicInformation.All(c => c.automatic && c.days.Length == count), "timeouts obey configured count and mode");
+            }
+            // Exercise scattered transport without accidentally leaking all dates between endpoints.
+            var sparse = new Harness(lobbyOptions: new LobbySettings { scatteredPublicDays = true, publicRevealDays = 8 });
+            sparse.Choose();
+            var selectedDays = new[] { 1, 3, 6, 10, 15, 21, 25, 30 };
+            Check(sparse.Info.RevealPublicDays(new RequestContext("STOCK", 1, Protocol.Info, "P1", "sparse-proof"), "AI", selectedDays, false).Success, "scattered service accepts separated days");
+            var sparseView = sparse.Info.BuildPlayerView(new RequestContext("STOCK", 1, Protocol.Info, "P2"), sparse.Market.GetOwnInvestmentState("P2"));
+            var known = InformationWindowRules.KnownDays(sparseView.companies.Single(c => c.companyId == "AI"));
+            Check(Enumerable.Range(1, 30).All(d => known[d].HasValue == selectedDays.Contains(d)), "unselected days between scattered dates remain hidden");
+            var copy = DtoCopy.Copy(sparse.Room.Snapshot());
+            copy.publicInformation[0].days[0] = 99; copy.lobbySettings.publicRevealDays = 0;
+            Check(sparse.Room.Snapshot().publicInformation[0].days[0] <= 30 && sparse.Room.Snapshot().lobbySettings.publicRevealDays == 8, "client copies isolate public date arrays and settings");
+        }
         private static void Draft()
         {
             var h = new Harness(); h.Choose(); h.FinishInfo();
-            double start = h.Clock.Seconds;
-            Check(h.Room.Snapshot().draftOrder.SequenceEqual(Players.Concat(Players)), "A to D repeats twice without reversing");
-            Check(h.Trade(2, "AI", 10).errorCode == "NOT_YOUR_TURN", "authenticated turn gate");
-            Check(h.Trade(1, "AI", h.Market.GetPortfolio("P1").LimitFor("AI") + 1).errorCode == "SHARE_LIMIT", "individual limit checked with or without concentration");
-            Check(h.Trade(1, "AI", 10).success, "first order");
-            Check(h.Trade(1, "SPACE", 5).success && h.Trade(1, "FOOD", 1).errorCode == "DRAFT_SHARE_LIMIT", "separate purchases share the fifteen-share budget");
-            Check(h.Room.Snapshot().selectionDeadlineAtServerSeconds == start + 7, "purchases never extend the deadline");
-            Check(h.Send(1, StockRules.Pass).success, "first player finishes early");
-            Check(h.Clock.Seconds == start && h.Trade(2, "AI", 10).success, "second player can immediately trade");
-            Check(h.Send(2, StockRules.Pass).success, "second player finishes early");
-            Check(h.Trade(3, "AI", 1).errorCode == "INSUFFICIENT_SHARES", "sold out");
-            h.Deadline(); Check(h.Send(4, StockRules.Pass).success, "early pass");
-            Check(h.Room.Snapshot().currentPlayerId == "P1" && h.Market.GetPortfolio("P1").draftSharesRemaining == 15, "second round starts with a fresh fifteen-share budget");
-            Check(h.Trade(1, "FOOD", 10).success && h.Trade(1, "AUTO", 5).success, "second pick invests the remaining fifteen slots");
-            for (int p = 1; p <= 4; p++) Check(h.Send(p, StockRules.Pass).success, "second round completion");
-            Check(h.Room.Snapshot().phase == Protocol.Investment && !h.Trade(4, "AI", 1).success, "eighth completion starts intervals and locks share trading");
-            Check(h.Market.ProcessedDay == 0, "prices are not simulated between players");
-            var plan = new[] { new Investment { companyId = "AI", intervals = new[] { new Interval { entryDay = 3, exitDay = 5 } } } };
-            Check(h.Send(3, "SAVE_TRADE_PLAN", new CommandPayload { investments = plan }).errorCode == "INVALID_COMPANY", "cannot reserve shares that were not purchased");
-            Check(h.Send(1, "SAVE_TRADE_PLAN", new CommandPayload { investments = plan }).success, "owned company intervals saved during the separate investment phase");
-            Check(h.Send(1, "SUBMIT_INVESTMENT", new CommandPayload { investments = plan }).success, "share quantities determine allocations without legacy two-company weights");
-            Check(h.Market.ProcessedDay == 0, "first confirmation keeps the market private");
+            Func<int,string,int,CommandResult> position = (player, company, target) => h.Send(player, StockRules.Position,
+                new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = company, targetShares = target } } });
+            Check(position(3, "AI", 1).success && !position(1, "AI", 11).success, "position requires enough drafted shares");
+            Check(position(1, "AI", 10).success, "full entry before day one");
+            h.Clock.Seconds += 2;
+            Check(position(1, "AI", 4).success && h.Market.ProcessedDay == 1, "day-one mark precedes same-boundary partial exit");
+            h.Clock.Seconds += 2; h.Room.Tick();
+            Check(position(1, "AI", 0).success && position(1, "AI", 6).success, "exit all and re-enter");
+            h.Clock.Seconds += 2; h.Room.Tick(); Check(position(1, "AI", 0).success, "exit at third close");
             h.Deadline();
-            Check(h.Room.Snapshot().phase == Protocol.Reveal && h.Market.ProcessedDay == 30, "remaining players time out into the market reveal");
-            Check(h.Market.GetPortfolio("P1").holdings.Single(v => v.companyId == "AI").shares == 0 &&
-                h.Market.GetPortfolio("P1").holdings.Single(v => v.companyId == "FOOD").shares == 10, "confirmed interval sells at exit while unspecified holdings stay invested");
+            var investment = h.Market.GetRevealedMarket(new RequestContext("STOCK", 1, Protocol.Reveal))
+                .Single(c => c.companyId == "AI").investments.Single(i => i.playerId == "P1");
+            Check(investment.intervals.Single().entryDay == 1 && investment.intervals.Single().exitDay == 3, "history reflects only days invested");
+            var prices = h.Market.GetWindow(1, "AI", 1, 3).Select(v => (10000m + v) / 10000m).ToArray();
+            decimal gain = 10 * (prices[0] - 1) + 4 * (prices[1] - prices[0]) +
+                (4 * prices[1] + 2 * prices[0]) * (prices[2] / prices[1] - 1);
+            Check(investment.returnBps == (int)Math.Round(10000m * gain / 10), "realized profits include partial exit and re-entry at the observed close");
         }
         private static void Timeline()
         {
             var h = new Harness(); h.Choose(); h.FinishInfo(); h.Room.DrainMessages();
             double start = h.Clock.Seconds;
-            for (int i = 0; i < 8; i++)
-            {
-                var s = h.Room.Snapshot();
-                Check(s.phase == Protocol.Selection && s.currentPlayerId == Players[i % 4], "each player gets two turns in seat order");
-                Check(s.selectionDeadlineAtServerSeconds == start + (i + 1) * 7, "each timeout allows seven seconds");
-                Check(h.Send(i % 4 + 1, "SAVE_TRADE_PLAN", new CommandPayload { investments = Array.Empty<Investment>() }).success, "own purchase turn can edit reservation drafts");
-                Check(h.Send((i + 1) % 4 + 1, "SAVE_TRADE_PLAN", new CommandPayload { investments = Array.Empty<Investment>() }).errorCode == "WRONG_PHASE", "other players cannot edit plans during someone else's purchase turn");
-                h.Deadline();
-            }
-            Check(h.Clock.Seconds == start + 56 && h.Room.Snapshot().phase == Protocol.Investment, "eight timeouts take fifty-six seconds with no intermediate simulation");
             Check(h.Market.ProcessedDay == 0 && !h.Room.DrainMessages().Any(m => m.Message.type == "MARKET_REVEAL"), "market remains hidden until plans are final");
-            for (int i = 1; i <= 4; i++)
-            {
-                Check(h.Room.Snapshot().phase == Protocol.Investment, "wait for all four confirmations");
-                Check(h.Send(i, "SUBMIT_INVESTMENT", new CommandPayload { investments = Array.Empty<Investment>() }).success, "empty bank-only portfolio can confirm");
-                if (i == 1) Check(h.Send(i, "SAVE_TRADE_PLAN", new CommandPayload { investments = Array.Empty<Investment>() }).errorCode == "ORDER_LOCKED", "confirmed plans cannot change");
+            Check(h.Room.Snapshot().phaseEndsAtServerSeconds == start + 60, "sixty seconds of live trading");
+            for (int day = 1; day <= 29; day++) {
+                h.Clock.Seconds = start + day * 2 - .001; h.Room.Tick();
+                Check(h.Market.ProcessedDay == day - 1, "no early close");
+                h.Clock.Seconds += .001; h.Room.Tick();
+                var view = h.Room.DrainMessages().Last(d => d.PlayerId == "P1" && d.Message.type == "PLAYER_VIEW").Message.playerView;
+                Check(view.portfolio.processedDay == day && view.companies.All(c =>
+                    c.visibleWindows.Single(w => w.source == "MARKET").dailyChangesBps.Length == day), "all companies reveal one more day");
             }
-            Check(h.Room.Snapshot().phase == Protocol.Reveal && h.Market.ProcessedDay == 30, "all confirmations reveal the full market");
+            h.Deadline();
+            Check(h.Room.Snapshot().phase == Protocol.Reveal && h.Market.ProcessedDay == 30, "thirtieth close ends trading");
             Check(h.Room.DrainMessages().Count(m => m.Message.type == "MARKET_REVEAL") == 4, "one market reveal per player");
+        }
+        private static void ConfiguredDayTiming()
+        {
+            foreach (int seconds in new[] { 1, 5, 60 }) {
+                var h = new Harness(lobbyOptions: new LobbySettings { daySeconds = seconds });
+                h.Choose(); h.FinishInfo();
+                double start = h.Clock.Seconds;
+                Check(h.Room.Snapshot().lobbySettings.daySeconds == seconds, "configured day duration is public");
+                Check(h.Room.Snapshot().phaseEndsAtServerSeconds == start + 30 * seconds, "investment deadline uses thirty configured days");
+                Check(StockRules.CurrentDay(h.Room.Snapshot(), h.Market.GetPortfolio("P1")) == 1, "first trading day is active immediately");
+                h.Clock.Seconds = start + seconds - .001; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 0, "no premature close");
+                h.Clock.Seconds = start + seconds; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 1 && StockRules.CurrentDay(h.Room.Snapshot(), h.Market.GetPortfolio("P1")) == 2, "one configured interval closes day one and activates day two");
+                h.Clock.Seconds = start + 3 * seconds + .25; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 3, "late frames process every elapsed configured interval");
+                Check(h.Room.SetPaused(true), "pause configured timeline");
+                h.Clock.Seconds += 100; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 3 && StockRules.CurrentDay(h.Room.Snapshot(), h.Market.GetPortfolio("P1")) == 4, "pause keeps the current day fixed");
+                Check(h.Room.SetPaused(false), "resume configured timeline");
+                h.Clock.Seconds += seconds; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 4, "resume continues with the configured interval");
+                h.Clock.Seconds = start + 100 + 30 * seconds - .001; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 29 && StockRules.CurrentDay(h.Room.Snapshot(), h.Market.GetPortfolio("P1")) == 30, "last day remains visible until its close");
+                h.Clock.Seconds += .001; h.Room.Tick();
+                Check(h.Market.ProcessedDay == 30 && h.Room.Snapshot().phase == Protocol.Reveal, "last configured close starts market reveal");
+                Check(!StockRules.CurrentDay(h.Room.Snapshot(), h.Market.GetPortfolio("P1")).HasValue, "current-day highlight ends with live trading");
+            }
         }
         private static void PickBudget()
         {
-            var h = new Harness(); h.Choose(); h.FinishInfo();
-            var order = new Command { type = StockRules.Trade, requestId = "split-fifteen", turn = 1, payload = new CommandPayload {
-                shareOrders = new[] { new ShareOrder { companyId = "AI", targetShares = 10 }, new ShareOrder { companyId = "SPACE", targetShares = 6 } } } };
-            Check(h.Room.ProcessCommand("c1", order).errorCode == "DRAFT_SHARE_LIMIT" && h.Market.GetPortfolio("P1").usedSlots == 0 &&
-                h.Market.GetPortfolio("P1").draftSharesRemaining == 15, "oversized multi-firm order changes neither shares nor budget");
-            order.requestId = "split-valid"; order.payload.shareOrders[1].targetShares = 5;
-            Check(h.Room.ProcessCommand("c1", order).success && h.Room.ProcessCommand("c1", order).success, "ordinary investor can split AI ten and SPACE five and safely replay");
-            Check(h.Market.GetPortfolio("P1").usedSlots == 15 && h.Market.GetPortfolio("P1").draftSharesRemaining == 0, "replayed order debits the budget only once");
-            Check(h.Trade(1, "AI", 5).success && h.Trade(1, "FOOD", 1).errorCode == "DRAFT_SHARE_LIMIT", "selling cannot refill this pick's budget");
-            Check(h.Trade(1, "AI", 10).errorCode == "DRAFT_SHARE_LIMIT", "sell-and-rebuy cannot bypass the cap");
-            Check(h.Market.GetShareMarket().Single(c => c.companyId == "BANK").owners[0].shares == 20, "uninvested shares automatically return to BANK");
-            h.Send(1, StockRules.Pass);
-            Check(h.Trade(2, "FOOD", 1).success, "another player leaves fourteen shares unused in the first pick");
-            for (int p = 2; p <= 4; p++) h.Send(p, StockRules.Pass);
-            Check(h.Market.GetPortfolio("P1").draftSharesRemaining == 15, "second pick resets the cap");
-            Check(h.Send(1, StockRules.Trade, new CommandPayload { shareOrders = new[] {
-                new ShareOrder { companyId = "FOOD", targetShares = 5 }, new ShareOrder { companyId = "AUTO", targetShares = 5 },
-                new ShareOrder { companyId = "BIO", targetShares = 5 } } }).success, "the per-pick fifteen shares can be spread over three firms");
-            Check(h.Trade(1, "AI", 6).errorCode == "DRAFT_SHARE_LIMIT", "unused first-pick capacity does not increase the second-pick cap");
-            h.Send(1, StockRules.Pass);
-            Check(h.Market.GetPortfolio("P2").draftSharesRemaining == 15 && h.Send(2, StockRules.Trade, new CommandPayload { shareOrders = new[] {
-                new ShareOrder { companyId = "AI", targetShares = 10 }, new ShareOrder { companyId = "SPACE", targetShares = 6 } } }).errorCode == "DRAFT_SHARE_LIMIT", "fourteen unused first-pick shares are not carried into the second-pick budget");
+            var h = new Harness(); h.Choose(); h.FinishPublic();
+            var plan = new Investment { companyId = "AI", intervals = new[] { new Interval { entryDay = 3, exitDay = 5 } } };
+            Check(h.Send(2, "SAVE_TRADE_PLAN", new CommandPayload { investments = new[] { plan } }).success, "private range saved during info");
+            h.FinishInfo();
+            Check(h.Market.GetReservations("P2").Single().intervals.Single().exitDay == 5 && h.Market.GetReservations("P1").Length == 0, "plan survives transition privately");
+            Check(h.Trade(4, "AI", 10).success && h.Trade(2, "AI", 10).success && !h.Trade(1, "AI", 1).success, "simultaneous shared supply");
+            h.Clock.Seconds += 2;
+            Check(h.Trade(4, "AI", 6).success && h.Trade(1, "AI", 4).success, "sale immediately frees shares for another player");
+            Check(h.Trade(2, "BIO", 10).success && h.Trade(2, "BANK", 10).success && !h.Trade(2, "FOOD", 1).success, "total capacity applies across companies");
+            var fills = DtoCopy.Copy(h.Room.Snapshot()).shareMarket.Single(c => c.companyId == "AI").fills;
+            Check(fills.Length == 4 && fills[2].playerId == "P4" && fills[2].day == 1 && fills[2].quantity == -4 && fills[3].quantity == 4, "public fills record partial sale and same-day buy");
         }
         private static void TurnSnapshots()
         {
@@ -193,25 +294,20 @@ namespace BlackWhale.Tests
                 "resynchronization returns matching deadlines and private player data");
             Check(deliveries.All(d => d.PlayerId == "P1"), "private resynchronization never leaks to other players");
         }
-        private static void InformationReservations()
+        private static void CompanyOnlyPublicPicks()
         {
-            var h = new Harness(); h.Choose(); h.FinishPublic();
-            var plan = new[] { new Investment { companyId = "AI", intervals = new[] { new Interval { entryDay = 3, exitDay = 5 } } } };
-            Check(h.Send(1, "SAVE_TRADE_PLAN", new CommandPayload { investments = plan }).success, "information exploration can reserve an unowned firm");
-            Check(h.Market.GetPortfolio("P1").usedSlots == 0 && h.Market.GetShareMarket().Single(c => c.companyId == "AI").owners.Sum(o => o.shares + o.reserved) == 0, "reservation drafts never preempt stock supply");
-            Check(h.Market.GetReservations("P1").Single().intervals.Single().entryDay == 3, "private reservation persists on the server for reconnect");
-            h.FinishInfo(); Check(h.Trade(1, "AI", 10).success, "automatic quantity input uses the normal share command");
-            h.Deadline();
-            Check(h.Market.GetPortfolio("P1").usedSlots == 10 && h.Room.Snapshot().currentPlayerId == "P2", "purchases survive the deadline without an apply or finish button");
-            while (h.Room.Snapshot().phase == Protocol.Selection) h.Deadline();
-            h.Deadline();
-            Check(h.Room.Snapshot().phase == Protocol.Reveal && h.Market.GetPortfolio("P1").usedSlots == 0, "saved exploration interval automatically exits at day five");
+            var h = new Harness(); h.Choose();
+            for (int player = 1; player <= 4; player++)
+                Check(h.Send(player, "REVEAL_INFORMATION_WINDOW", new CommandPayload { companyId = "SPACE" }).success, "company-only pick");
+            var dates = h.Room.Snapshot().publicInformation.SelectMany(w => Enumerable.Range(w.startDay, 5)).ToArray();
+            Check(dates.Length == 20 && dates.Distinct().Count() == 20, "four same-company picks expose twenty distinct days");
+            Check(GameSettings.StockGame.InfoSeconds == 30, "production exploration duration");
         }
         private static void Bank()
         {
             var m = MarketService.CreateStockSystem(19); m.BeginTurn(new RequestContext("BANK", 1, Protocol.Info), Players);
             var bank = m.GetShareMarket().Single(c => c.companyId == "BANK");
-            Check(bank.totalShares == 120 && bank.owners.Sum(o => o.shares) == 120 && bank.owners.All(o => o.shares == 30), "all four players automatically deposit thirty shares");
+            Check(bank.totalShares == 120 && bank.owners.All(o => o.shares == 0), "all four players automatically deposit thirty shares");
             Check(m.TradeShares(new RequestContext("BANK", 1, Protocol.Selection, "P1"), new[] { new ShareOrder { companyId = "BANK", targetShares = 1 } }).ErrorCode == "AUTOMATIC_BANK", "BANK needs no manual order");
             m.LockPortfolios(); var board = m.SettleTurn(new RequestContext("BANK", 1, Protocol.Reveal));
             Check(board.rows.All(r => r.totalAssets == 10000 + m.GetWindow(1, "BANK", 30, 1)[0]), "every unused slot earns BANK returns");
@@ -271,7 +367,8 @@ namespace BlackWhale.Tests
                 {
                     foreach (var bot in bots) { bot.Update(n); pump(); }
                     var state = h.Room.Snapshot();
-                    wait();
+                    if (state.phase == Protocol.Investment) { h.Clock.Seconds += 2; h.Room.Tick(); pump(); continue; }
+                    if (state.phase != Protocol.Info) wait();
                     Check(h.Room.Snapshot().phase == state.phase && h.Room.Snapshot().selectionIndex == state.selectionIndex,
                         "elapsed time alone cannot advance developer phase");
                     if (state.publicSelectionActive && state.publicSelectionPlayerId == "P1")
@@ -335,14 +432,7 @@ namespace BlackWhale.Tests
             var h = new Harness();
             foreach (var id in Players) Check(h.Market.GetPortfolio(id).candidates.Distinct().Count() == 3 && !h.Market.GetPortfolio(id).candidates.Contains("FLEXIBLE"), "three distinct candidates exclude the effect now provided by default");
             Check(h.Send(1, StockRules.Choose, new CommandPayload { augmentId = "not-a-candidate" }).errorCode == "INVALID_AUGMENT", "cannot invent an augment"); h.Choose(); h.FinishInfo();
-            OwnedAugments(h.Market, "P1").Add("FLEXIBLE"); OwnedAugments(h.Market, "P4").Add("PRIORITY");
-            Check(h.Send(1, StockRules.Trade, new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = "AI", targetShares = 10 }, new ShareOrder { companyId = "FOOD", targetShares = 5 } } }).success,
-                "flexible investor atomically adjusts two firms");
-            Check(h.Send(1, StockRules.Pass).success, "finish flexible purchase");
-            Check(h.Send(4, StockRules.Priority).success, "future turn moves ahead without replacing active P2");
-            Check(h.Room.Snapshot().currentPlayerId == "P2" && h.Room.Snapshot().draftOrder[2] == "P4", "priority preserves already completed and active picks");
-            Check(h.Send(4, StockRules.Priority).errorCode == "NO_PRIORITY_SLOT", "priority cannot replace the active pick");
-            var order = new Command { type = StockRules.Trade, requestId = "share-replay", turn = 1, payload = new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = "FOOD", targetShares = 5 } } } };
+            var order = new Command { type = StockRules.Position, requestId = "share-replay", turn = 1, payload = new CommandPayload { shareOrders = new[] { new ShareOrder { companyId = "FOOD", targetShares = 5 } } } };
             Check(h.Room.ProcessCommand("c2", order).success && h.Room.ProcessCommand("c2", order).success, "share request replay does not advance twice");
             order.payload.shareOrders[0].targetShares = 4; Check(h.Room.ProcessCommand("c2", order).errorCode == "REQUEST_ID_CONFLICT", "share quantities included in fingerprint");
         }
@@ -392,7 +482,7 @@ namespace BlackWhale.Tests
             }
             var market = m.GetShareMarket();
             Check(market.Where(c => c.companyId != "BANK").All(c => c.totalShares == 20 && c.owners.All(o => o.shares == 0 && o.reserved == 0)), "all company supply is available again");
-            Check(market.Single(c => c.companyId == "BANK").owners.Sum(o => o.shares) == 120, "all four players automatically deposit into BANK");
+            Check(market.Single(c => c.companyId == "BANK").owners.Sum(o => o.shares) == 0, "BANK supply starts unclaimed");
             Check(m.GetPortfolio("P1").augments.Contains("ANALYST") && m.InformationDiscount("P1") == 2, "earned augments still apply in the new turn");
             Check(m.GetRevealedMarket(new RequestContext("RESET", 1, Protocol.Reveal)).Single(c => c.companyId == "AI").investments.Single(i => i.playerId == "P1").shares == 10,
                 "reset never rewrites the previous turn's public trade history");

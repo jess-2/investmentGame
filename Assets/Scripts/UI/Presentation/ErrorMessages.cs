@@ -10,10 +10,12 @@ namespace BlackWhale.UI.Presentation
             switch (errorCode)
             {
                 case "DRAFT_SHARE_LIMIT": return "한 차례에는 새로 매수하는 수량을 합쳐 최대 15주까지 투자할 수 있습니다.";
-                case "INVALID_WINDOW": return "1~30일 안에서 시작일과 끝일을 선택하세요. 공용 공개는 연속 5일입니다.";
+                case "INVALID_LOBBY_SETTINGS": return "코인은 0~999개, 공개 일수는 0~30일, 일차당 시간은 1~60초로 입력하세요.";
+                case "NO_PUBLIC_DAYS": return "설정한 일수만큼 공개할 수 없는 기업입니다. 다른 기업을 선택하세요.";
+                case "INVALID_WINDOW": return "1~30일 안에서 시작일과 끝일을 선택하세요.";
                 case "PUBLIC_SELECTION_PENDING": return "4명의 공용 공개를 마친 뒤 개인 탐색을 시작합니다.";
                 case "PUBLIC_SELECTION_COMPLETE": return "공용 공개가 모두 끝났습니다.";
-                case "PUBLIC_WINDOW_OVERLAP": return "이미 공용 공개된 날짜와 겹칩니다. 다른 5일을 선택하세요.";
+                case "PUBLIC_WINDOW_OVERLAP": return "이미 공용 공개된 날짜와 겹칩니다. 다른 날짜를 선택하세요.";
                 case "NO_INFORMATION_TARGET": return "효과를 적용할 유료 구매 정보가 없습니다. 아이템은 소모되지 않았습니다.";
                 case "CATEGORY_ALREADY_USED": return "이번 턴에 같은 분류의 아이템을 이미 사용했습니다.";
                 case "INVALID_ITEM": return "사용할 수 있는 보유 아이템이 아닙니다.";

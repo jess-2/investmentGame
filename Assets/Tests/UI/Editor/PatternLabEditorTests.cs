@@ -55,8 +55,8 @@ namespace BlackWhale.UI.Tests
             try
             {
                 window.Configure(42, 1, 0);
-                Assert.AreEqual(12, window.Samples.Count);
-                Assert.AreEqual(12, window.Samples.Select(s => s.Pattern + ":" + s.Outcome).Distinct().Count());
+                Assert.AreEqual(48, window.Samples.Count);
+                Assert.AreEqual(48, window.Samples.Select(s => s.Pattern + ":" + s.Outcome).Distinct().Count());
                 window.position = new Rect(40, 40, 1200, 900); window.Show(); window.Repaint();
                 yield return null; yield return null;
                 var paintedCards = typeof(PatternLabWindow).GetField("renderedCardCount", BindingFlags.NonPublic | BindingFlags.Instance);

@@ -20,11 +20,11 @@ namespace BlackWhale.UI.Dev
         public TimerMode Mode { get; }
 
         public LocalRoomHost(IMarketService market, IInformationService information,
-            TimerMode mode = TimerMode.Realtime, bool fixedSeatOrder = true, GameSettings settings = null)
+            TimerMode mode = TimerMode.Realtime, bool fixedSeatOrder = true, GameSettings settings = null, IServerClock clock = null)
         {
             Mode = mode;
             Room = new GameRoom("DEV-" + Guid.NewGuid().ToString("N").Substring(0, 8), market, information,
-                new MonotonicClock(), mode, fixedSeatOrder, settings);
+                clock ?? new MonotonicClock(), mode, fixedSeatOrder, settings);
         }
 
         /// <summary>참가자 1명 입장. 먼저 입장한 사람이 P1(방장).</summary>

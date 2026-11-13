@@ -18,7 +18,7 @@ namespace BlackWhale.UI.EditorTools
         private GUIStyle cardTitle, cardNote;
         private readonly List<StockPatternSample> samples = new List<StockPatternSample>();
         public IReadOnlyList<StockPatternSample> Samples => samples;
-        private static readonly string[] PatternNames = { "박스권 · Rectangle", "M자 · Double Top", "W자 · Double Bottom", "깃발형 · Flag" };
+        private static readonly string[] PatternNames = { "박스권 · Rectangle", "M자 · Double Top", "W자 · Double Bottom", "깃발형 · Flag", "AscendingTriangle", "DescendingTriangle", "RoundingBottom", "RoundingTop", "MeasuredMoveUp", "MeasuredMoveDown", "BumpAndRunTop", "HeadAndShouldersTop", "Pennant", "ThreeRisingValleys", "VBottom", "VTop" };
         private static readonly string[] OutcomeNames = { "완성 분기", "실패·훼손 분기", "비패턴 대조군" };
         private static readonly string[] Turns = { "1턴", "2턴", "3턴", "4턴", "5턴", "6턴", "7턴", "8턴", "9턴", "10턴" };
 
@@ -54,7 +54,7 @@ namespace BlackWhale.UI.EditorTools
                 cardNote = new GUIStyle(EditorStyles.miniLabel); cardNote.normal.textColor = new Color(.70f, .77f, .84f);
             }
             EditorGUI.BeginChangeCheck();
-            mode = GUILayout.Toolbar(mode, new[] { "패턴별 비교 · 4종 × 3분기", "일반 게임 생성 · 6종목" }, GUILayout.Height(28));
+            mode = GUILayout.Toolbar(mode, new[] { "패턴별 비교 · 16종 × 3분기", "일반 게임 생성 · 6종목" }, GUILayout.Height(28));
             using (new EditorGUILayout.HorizontalScope())
             {
                 seed = EditorGUILayout.IntField("시드", seed, GUILayout.Width(230));

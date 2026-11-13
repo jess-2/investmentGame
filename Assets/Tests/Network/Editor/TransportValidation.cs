@@ -25,7 +25,7 @@ namespace BlackWhale.Tests
     {
         public static async Task<string[]> Run(RoomValidation suite, IWireCodec codec)
         {
-            foreach (string field in new[] { "entryDay", "exitDay", "turn", "weightBps", "bundleIndex", "entry\\u0044ay" })
+            foreach (string field in new[] { "entryDay", "exitDay", "turn", "weightBps", "bundleIndex", "entry\\u0044ay", "earlyTurnCoins", "lateTurnCoins", "publicRevealDays", "publicRevealD\\u0061ys", "daySeconds", "dayS\\u0065conds" })
                 foreach (string number in new[] { "1.5", "2147483648", "\"3\"", "null", "1e0" })
                 {
                     bool rejectedNumber = false;

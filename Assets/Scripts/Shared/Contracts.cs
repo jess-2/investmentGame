@@ -34,6 +34,20 @@ namespace BlackWhale.Shared
         public string[] seatPreferences;
         public ShareOrder[] shareOrders;
         public string augmentId;
+        public LobbySettings lobbySettings;
+    }
+    [Serializable] public sealed class LobbySettings
+    {
+        public int earlyTurnCoins = 15, lateTurnCoins = 25, publicRevealDays = 5;
+        public int daySeconds = StockRules.DaySeconds;
+        public bool scatteredPublicDays;
+        public bool IsValid => earlyTurnCoins >= 0 && earlyTurnCoins <= 999 && lateTurnCoins >= 0 && lateTurnCoins <= 999
+            && publicRevealDays >= 0 && publicRevealDays <= 30 && daySeconds >= 1 && daySeconds <= 60;
+        public LobbySettings Copy() => new LobbySettings { earlyTurnCoins = earlyTurnCoins, lateTurnCoins = lateTurnCoins,
+            publicRevealDays = publicRevealDays, scatteredPublicDays = scatteredPublicDays, daySeconds = daySeconds };
+        public bool SameAs(LobbySettings other) => other != null && earlyTurnCoins == other.earlyTurnCoins
+            && lateTurnCoins == other.lateTurnCoins && publicRevealDays == other.publicRevealDays && scatteredPublicDays == other.scatteredPublicDays
+            && daySeconds == other.daySeconds;
     }
     [Serializable] public sealed class Command
     {
@@ -92,6 +106,7 @@ namespace BlackWhale.Shared
         public int totalTurns;
         public string[] draftOrder;
         public CompanyShareState[] shareMarket;
+        public LobbySettings lobbySettings;
     }
     [Serializable] public sealed class VisibleBundle
     {
@@ -117,6 +132,7 @@ namespace BlackWhale.Shared
         public string playerId, companyId;
         public int startDay;
         public bool automatic;
+        public int[] days;
     }
     [Serializable] public sealed class PlayerView
     {

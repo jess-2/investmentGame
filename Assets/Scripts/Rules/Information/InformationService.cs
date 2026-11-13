@@ -119,9 +119,10 @@ namespace InvestmentGame.Rules.Information
         /// 턴 시작 코인을 지급한다.
         /// 같은 턴을 다시 호출해도 지급 원장이 이미 있으면 잔액을 변경하지 않는다.
         /// </summary>
-        public CoinGrantResult GrantTurnCoins(int turn, IEnumerable<string> playerIds, bool perDay = false)
+        public CoinGrantResult GrantTurnCoins(int turn, IEnumerable<string> playerIds, bool perDay = false, int? coinGrant = null)
         {
             if (turn < 1) throw new ArgumentOutOfRangeException(nameof(turn));
+            if (coinGrant.HasValue && (coinGrant < 0 || coinGrant > 999)) throw new ArgumentOutOfRangeException(nameof(coinGrant));
             if (playerIds == null) throw new ArgumentNullException(nameof(playerIds));
             var ids = playerIds.ToList();
             lock (sync)
@@ -134,9 +135,9 @@ namespace InvestmentGame.Rules.Information
                     // HashSet.Add가 true인 최초 호출에서만 지급한다.
                     var granted = state.GrantedTurns.Add(key);
                     // rules-v2에 따라 6턴부터 5개, 그 전에는 3개를 지급한다.
-                    if (granted) state.Coins += turn >= InformationConstants.LateGrantStartsAtTurn
+                    if (granted) state.Coins += coinGrant ?? (turn >= InformationConstants.LateGrantStartsAtTurn
                         ? (perDay ? InformationConstants.DailyLateTurnCoinGrant : InformationConstants.LateTurnCoinGrant)
-                        : (perDay ? InformationConstants.DailyEarlyTurnCoinGrant : InformationConstants.EarlyTurnCoinGrant);
+                        : (perDay ? InformationConstants.DailyEarlyTurnCoinGrant : InformationConstants.EarlyTurnCoinGrant));
                     if (granted) state.CoinsByTurn[turn] = state.Coins;
                     last = new CoinGrantResult(playerId, turn, state.Coins, granted);
                 }

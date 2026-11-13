@@ -25,6 +25,6 @@ namespace BlackWhale.Flow
             EnableProgressionFeatures = enableProgressionFeatures;
         }
         public static GameSettings Fixture => new GameSettings(50, 1, enableProgressionFeatures: false);
-        public static GameSettings StockGame => new GameSettings(60, StockRules.Turns, 20, enableProgressionFeatures: false);
+        public static GameSettings StockGame => new GameSettings(30, StockRules.Turns, 20, enableProgressionFeatures: false);
     }
 }
