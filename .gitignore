@@ -6,6 +6,7 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
+.validation/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -44,6 +45,9 @@
 ExportedObj/
 .consulo/
 *.csproj
+!/Tests/AValidation/AValidation.csproj
+/Tests/AValidation/bin/
+/Tests/AValidation/obj/
 *.unityproj
 *.sln
 *.slnx

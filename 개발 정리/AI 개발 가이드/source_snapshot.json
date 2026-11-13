@@ -6,21 +6,21 @@
   "sources": [
     {
       "sourcePath": "개발 정리/참고사항/전체 프로세스 정리.md",
-      "sha256": "48c76d98144b07a8f7dbda9aeb42d2900cbc4a4fb851c65f553d5164b576ea9c",
+      "sha256": "b0d99eafdbd104e4bbfe336b9b1d42192a3a65f82072a529edd141058e8e5e27",
       "kind": "planning-source"
     },
     {
-      "sourcePath": "7주차 발표정리/7주차 정리.md",
+      "sourcePath": "../7주차 발표정리/7주차 정리.md",
       "sha256": "a1f8c49d9a29f05477689af2387c62498c70f6e1b69e2e1c89fe23a85b2a02c8",
       "kind": "planning-source"
     },
     {
-      "sourcePath": "요구사항명세서/요구사항명세서.MD",
+      "sourcePath": "../요구사항명세서/요구사항명세서.MD",
       "sha256": "a718423e67effd5b5aa8009bf3b59724caf8683ffd650e44c57bea0c275d04ed",
       "kind": "planning-source"
     },
     {
-      "sourcePath": "7주차 발표정리/7주차 발표.pptx",
+      "sourcePath": "../7주차 발표정리/7주차 발표.pptx",
       "sha256": "a0afb6f44b0734692c131e41def4888fc1e4ea9328287946d2238493ef88cf34",
       "kind": "planning-source"
     },

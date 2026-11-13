@@ -1,0 +1,6 @@
+{
+  "name": "BlackWhale.Flow",
+  "rootNamespace": "BlackWhale.Flow",
+  "references": ["BlackWhale.Shared"],
+  "noEngineReferences": true
+}

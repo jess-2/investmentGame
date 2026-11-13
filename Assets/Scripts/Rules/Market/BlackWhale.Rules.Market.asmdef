@@ -1,0 +1,6 @@
+{
+  "name": "BlackWhale.Rules.Market",
+  "rootNamespace": "BlackWhale.Rules",
+  "references": ["BlackWhale.Shared"],
+  "noEngineReferences": true
+}

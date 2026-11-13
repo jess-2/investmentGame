@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from urllib.parse import unquote
@@ -16,11 +17,27 @@ WORKSPACE = HERE.parents[1]
 FIXTURES = HERE.parent / "임시 데이터 및 검증용"
 PACKAGE_VERSION = "prototype-v2"
 PROCESS_DOC = WORKSPACE / "개발 정리/참고사항/전체 프로세스 정리.md"
+
+
+def planning_source(relative_path):
+    """Sources may be in this Unity project or its containing course workspace."""
+    candidates = [WORKSPACE / relative_path, WORKSPACE.parent / relative_path]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError("Planning source missing: " + relative_path)
+
+
+def source_path(path):
+    # Preserve project-root fixture paths; external course sources use ../ explicitly.
+    return Path(os.path.relpath(path, WORKSPACE)).as_posix()
+
+
 SOURCES = [
     PROCESS_DOC,
-    WORKSPACE / "7주차 발표정리/7주차 정리.md",
-    WORKSPACE / "요구사항명세서/요구사항명세서.MD",
-    WORKSPACE / "7주차 발표정리/7주차 발표.pptx",
+    planning_source("7주차 발표정리/7주차 정리.md"),
+    planning_source("요구사항명세서/요구사항명세서.MD"),
+    planning_source("7주차 발표정리/7주차 발표.pptx"),
 ]
 COMMON_DOCS = ["README.md", "00_공통_맥락.md", "01_공통_연결_규약.md",
                "02_결정_사항.md", "03_GitHub_병합_지침.md"]
@@ -172,7 +189,7 @@ def build():
     products[HERE/"source_snapshot.json"] = {
         "packageVersion":PACKAGE_VERSION,"rulesVersion":"rules-v2","sourceDate":"2026-10-25",
         "note":"내용이 달라지면 재검토한다. 이 SHA는 파일 출처 검사용이며 실제 네트워크 프로토콜 버전이 아니다.",
-        "sources":[{"sourcePath":p.relative_to(WORKSPACE).as_posix(),"sha256":sha(p),
+        "sources":[{"sourcePath":source_path(p),"sha256":sha(p),
                     "kind":"planning-source" if p in SOURCES else "fixture-source"} for p in tracked],
         "coverage":{r:role_cases[r] for r in "ABCD"}}
     covered = set().union(*(set(ids) for ids in role_cases.values()))

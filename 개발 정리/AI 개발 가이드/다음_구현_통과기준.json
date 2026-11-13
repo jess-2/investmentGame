@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "1.0",
+  "planId": "next-2026-11-02",
+  "baselineCommit": "dff900a",
+  "baselineRulesVersion": "rules-v2",
+  "scopeUpdate": {"date": "2026-11-02", "source": "사용자가 대화에서 추가한 차주 구현 목표", "description": "10턴·3/6/9턴 입찰·전광판·고유능력·아이템·레퍼런스 기반 UI·난이도별 정보 구매/투자 BOT을 차주 범위로 통합"},
+  "sourcePathBase": "guide-directory",
+  "improvementSource": {
+    "path": "../../../10주차 발표정리/개선사항.md",
+    "sha256": "075079b2d621358a09ba625042a4cb9f6c8f008229488d22c7c90b4245eb1780"
+  },
+  "note": "미구현 후속 기능의 검증 명세다. NOT_RUN은 새 기능 상태이며 기존 회귀의 구현 현황과 별개다. 실행 결과는 별도 로그에 남긴다.",
+  "requirements": [
+    {"id": "IMP-09", "description": "1~10턴·이월·순환·최종 승자", "cases": ["N01", "N02", "N03"]},
+    {"id": "IMP-10", "description": "3·6·9턴 입찰·비용·보상·자리", "cases": ["N04", "N05", "N06"]},
+    {"id": "IMP-11", "description": "10턴 전광판·공개 이벤트·최종 결과", "cases": ["N11"]},
+    {"id": "IMP-12", "description": "고유능력5종 선택·상태·발동·효과", "cases": ["N07", "N08"]},
+    {"id": "IMP-13", "description": "상점·인벤토리·전체 아이템", "cases": ["N09", "N10"]},
+    {"id": "IMP-14", "description": "레퍼런스 기반 박진감 있는 UI", "cases": ["N12"]},
+    {"id": "IMP-01", "description": "0일차 대비 일별 막대 그래프", "cases": ["G01", "G02", "G03", "G04"]},
+    {"id": "IMP-02", "description": "마우스 진입/청산 선택과 취소", "cases": ["I01", "I02", "I03", "I04", "I05"]},
+    {"id": "IMP-03", "description": "기업 이름과 이미지", "cases": ["S01"]},
+    {"id": "IMP-04", "description": "투자 자리 선택/취소: 후보 확정 전 취소 권장안", "cases": ["S02", "S03"]},
+    {"id": "IMP-05", "description": "타인이 선점한 자리 강조", "cases": ["S04"]},
+    {"id": "IMP-06", "description": "구매한 정보 기반 BOT 투자", "cases": ["B01", "B02", "B03", "B05", "B06", "B07"]},
+    {"id": "IMP-07", "description": "BOT 난이도", "cases": ["B04"]},
+    {"id": "IMP-08", "description": "INFO 90초", "cases": ["T01", "T02", "T03", "T04"]}
+  ],
+  "timingProfiles": {
+    "baselineFixture": {"info": 50, "selection": 32, "investment": 23, "reveal": 10, "result": 5, "maximum": 120},
+    "nextPlay": {"info": 90, "selection": 32, "investment": 23, "reveal": 10, "result": 5, "maximum": 160},
+    "nextAuctionProposal": {"auction": 15, "info": 90, "selection": 32, "investment": 23, "reveal": 10, "result": 5, "maximum": 175}
+  },
+  "exampleInputs": {
+    "graph": {"companyId": "AI", "visibleBundles": [
+      {"bundleIndex": 0, "startDay": 1, "source": "PUBLIC", "dailyChangesBps": [-200, -500, -800, -1000, 0]},
+      {"bundleIndex": 1, "startDay": 6, "source": "PURCHASED", "dailyChangesBps": [-1500, -2000, -2500, -3000, -4000]},
+      {"bundleIndex": 2, "startDay": 11, "source": "PUBLIC", "dailyChangesBps": [-3000, -1500, 0, 1500, 3000]}
+    ]},
+    "intervals": {
+      "allowed": [[0, 5], [3, 8], [3, 13], [25, 30]],
+      "rejected": [[3, 7], [3, 14], [26, 31], [8, 3], [3, 3]],
+      "allowedTouching": [[0, 5], [5, 10]],
+      "rejectedOverlapping": [[0, 10], [5, 15]]
+    },
+    "seats": [
+      {"remainingSeats": 2, "ownSelected": false, "expected": {"empty": 2, "mine": 0, "occupiedAnonymous": 0}},
+      {"remainingSeats": 1, "ownSelected": false, "expected": {"empty": 1, "mine": 0, "occupiedAnonymous": 1}},
+      {"remainingSeats": 1, "ownSelected": true, "expected": {"empty": 1, "mine": 1, "occupiedAnonymous": 0}},
+      {"remainingSeats": 0, "ownSelected": true, "expected": {"empty": 0, "mine": 1, "occupiedAnonymous": 1}},
+      {"remainingSeats": 0, "ownSelected": false, "expected": {"empty": 0, "mine": 0, "occupiedAnonymous": 2}}
+    ]
+  },
+  "cases": [
+    {"id": "N01", "task": "NEXT-A04", "owners": ["A", "B", "C", "D"], "setup": "사람1+BOT3/사람2+BOT2/사람4, 실제 TCP와 턴별 시장 공급", "action": "능력 선택부터1~10턴과 최종 종료까지 실행, 마감/일부 미입력도 주입", "expected": "매턴 선택/주문/완료 초기화, 자산·코인·기록·인벤토리·능력 상태 유지, 1~9턴 후 계속 진행·10턴만 최종 종료, BOT 포함 진행 정지 없음", "verification": "서버 시계 자동 통합 + 실제 UI10턴", "executionStatus": "NOT_RUN"},
+    {"id": "N02", "task": "NEXT-A04", "owners": ["A", "B", "C"], "setup": "서로 다른 턴 시장·정산·지급·보상, 과거 요청 키와 재접속", "action": "턴 시작/정산/지급 재호출, 이전턴 신규 요청/동일 처리 재전송, 시장·기록 재조회", "expected": "턴별 시장 불변·이월과 지급/정산/보상1회, 과거 조회 읽기전용, 과거 권한은 새턴 열람 불가, 늦은 요청이 현재 상태를 덮어쓰지 않음", "verification": "실제 B/C 원장 + A 네트워크", "executionStatus": "NOT_RUN"},
+    {"id": "N03", "task": "NEXT-A04", "owners": ["A", "B", "C"], "setup": "시작 추첨 고정, 1~8턴 순환 및9턴 입찰, 최종 자산/코인/최고 턴 수익률 동점 사례", "action": "매턴 선택 차례와10턴 최종 승자 계산", "expected": "1~8턴02의 자리 순환·뱀순서, 9·10턴 같은 입찰 배치, 최종 자산→코인→최고 단일턴 수익률→시작 추첨순번으로 결정", "verification": "순서/순위 사례 검사", "executionStatus": "NOT_RUN"},
+    {"id": "N04", "task": "NEXT-A05", "owners": ["A", "C", "D"], "setup": "1~10턴 진행, 입찰15초+INFO90초 기본안, 새 명령/DTO", "action": "3·6·9턴 입찰 진입·확정·재전송·마감/미제출·비밀 금액 수신 검토", "expected": "해당3개 턴만 입찰, 새 제출은 마감 이상 거절·미제출0, 본인 금액만 개인 응답·타인 금액은 공개 금지, 동일 요청 중복 없음, 입찰턴 최대175초 설정 일치", "verification": "시각 경계 + TCP 라우팅 + 입찰 UI", "executionStatus": "NOT_RUN"},
+    {"id": "N05", "task": "NEXT-C03", "owners": ["A", "B", "C"], "setup": "3·6턴 입찰: 양수 낙찰/모두0/동액/상한초과/인벤토리 가득 및 턴 수익률 동점1위", "action": "입찰 확정·비용/아이템/성과 코인 보상 재호출", "expected": "상한floor(S*10%), 낙찰자만 비용·모두0 유찰, 동액은 시작자산낮음→추첨순번, 아이템 초과는코인1, 수익률1위 모두코인1개를 정산후1회 지급, 실패 부분변경 없음", "verification": "실제 비용/입찰/보상 원장", "executionStatus": "NOT_RUN"},
+    {"id": "N06", "task": "NEXT-C03", "owners": ["A", "B", "C"], "setup": "9턴 프리패스/일반 입찰·모두0·동액·잘못된 자리 선호", "action": "순위·비용·A/B/C/D 배정 후10턴 진행", "expected": "프리패스 점수25% 가산·실제 원입찰액만 비용, 각자 비용1회·무료0 배정 가능, 선호 기본A→B→C→D, 9·10턴 같은 배치·10턴 재입찰 없음", "verification": "정수 비교/원장 + 9→10턴 통합", "executionStatus": "NOT_RUN"},
+    {"id": "N07", "task": "NEXT-C04", "owners": ["A", "C", "D"], "setup": "능력5종의 시작 전 후보3개·선택1개·미선택·중복능력·초기 아이템", "action": "능력 선택/재전송/초기 지급·재접속·턴 전환", "expected": "제시 후보만 선택, 미선택 첫후보·플레이어간중복허용, 능력/초기 아이템1회, 개인 상태 복원·무료권/쿨다운 올바른 초기화", "verification": "C 상태 + 시작/선택 UI/TCP", "executionStatus": "NOT_RUN"},
+    {"id": "N08", "task": "NEXT-B03", "owners": ["A", "B", "C"], "setup": "정치인/작전 세력/정보상/기업사냥꾼/도박사 각각 효과·실패·경계·복합 사례", "action": "공격/무료권/방어·쿨다운·금융효과/감산/보상 정산과 재전송", "expected": "02의5종 효과·t+3 재사용/방패단축·무료권비누적·실제감산보상·원본스냅샷 순서 일치, 기업하한-100%·피해합계I의15%·자산0 하한·정수반올림 유지", "verification": "5종별 C#/정산 사례 + 통합", "executionStatus": "NOT_RUN"},
+    {"id": "N09", "task": "NEXT-C02", "owners": ["A", "B", "C", "D"], "setup": "상점 가격S기준·잔액부족/자산0·인벤토리3·구매/분류별사용제한·잘못된대상/단계", "action": "전체아이템 구매/사용/이월/재전송·실패 주입", "expected": "구매턴당1·인벤토리최대3·금융/정보/공격각1, 가격0방향버림/최소1, 비용과 지급/소모 원자적, 거절 무소모·유효사용소모, 프리패스상점판매없음", "verification": "원장·입력경계 + 상점/인벤토리 UI", "executionStatus": "NOT_RUN"},
+    {"id": "N10", "task": "NEXT-B03", "owners": ["A", "B", "C"], "setup": "증폭기/하락 파쇄기/방패/대폭발 탐지기/블랙박스/정보 왜곡/정보 훔치기/수익률 감소/프리패스", "action": "아이템별 성공/실패/경계·능력과 상호작용·복합 정산", "expected": "02의9종 모두 매핑 검사, 금융효과순서/하한·원본불변·가림10초/INFO종료해제·PURCHASED만공격대상·ABILITY/ITEM/STOLEN구분·보상중복없음", "verification": "9종별 정책/정보격리/정산 + TCP", "executionStatus": "NOT_RUN"},
+    {"id": "N11", "task": "NEXT-D05", "owners": ["A", "B", "C", "D"], "setup": "10턴 성과·순위변화·입찰결과·능력/아이템 공개이벤트·과거보기", "action": "전광판 갱신·과거조회·최종 결과 표시", "expected": "턴/누적성과·추이·순위·최종승자 서버값 일치, 이벤트1회, 과거보기는현재턴불변, 타인주문/구매값/입찰원문 비공개", "verification": "집계/이벤트 + 전광판 UI", "executionStatus": "NOT_RUN"},
+    {"id": "N12", "task": "NEXT-D07", "owners": ["D"], "setup": "구현시 선정한 UI레퍼런스 파일/URL과 화면별 적용 기록", "action": "정보/입찰/선택/능력/상점/시장공개/전광판/최종결과 화면·연출·입력검토", "expected": "자료와적용요소추적가능, 긴장감/속도감있는전환·강조, 숫자/시간/가능행동명확, 연출중마감/조작정상·정보누출없음", "verification": "화면/영상·실제 해상도/마우스 검토", "executionStatus": "NOT_RUN"},
+    {"id": "T01", "task": "NEXT-A01", "owners": ["A", "D"], "setup": "다음 플레이 설정, INFO 시작 서버시각0", "action": "공개 상태와 타이머 표시 검사", "expected": "phaseEndsAtServerSeconds=90, 시작 표시1:30, 클라이언트는 단계를 전진하지 않음", "verification": "C# clock + Unity UI", "executionStatus": "NOT_RUN"},
+    {"id": "T02", "task": "NEXT-A01", "owners": ["A"], "setup": "90초 INFO, 새 구매 요청 2개를 별도 초기 상태로 검사", "action": "89.999/90.000초 서버 수신, 메인 스레드 처리는 더 늦게 실행", "expected": "89.999는 정상 구매 가능, 90.000은 마감 거절, 실패 무차감; 처리 시각이 수신 시각을 대체하지 않음", "verification": "서버 수신시각 주입 검사", "executionStatus": "NOT_RUN"},
+    {"id": "T03", "task": "NEXT-A01", "owners": ["A", "D"], "setup": "90초 프로필, 동일 시각으로 초기화한 독립 방 2개", "action": "한 방은 20초 전원 INFO 완료, 다른 방은 끝까지 무입력", "expected": "조기 방은20초 선택 시작/첫 차례24초 마감; 무입력 방은90/122/145/155/160초 경계로 종료, 자동행동1회", "verification": "서버 시계·실제 서비스 통합", "executionStatus": "NOT_RUN"},
+    {"id": "T04", "task": "NEXT-A01", "owners": ["A"], "setup": "기존 basic-turn-v2 + 명시적50초 설정", "action": "기존 selection replay와 AValidation 실행", "expected": "INFO50초·선택 완료74초·주문마감97초와 기존 29개 회귀 유지; fixture 전역 수정 없음", "verification": ".NET/Unity 회귀", "executionStatus": "NOT_RUN"},
+    {"id": "G01", "task": "NEXT-D01", "owners": ["D"], "setup": "exampleInputs.graph", "action": "정보/주문 시세 막대와 툴팁 표시", "expected": "10일 -40%, 15일 +30%, 5일/13일 0%; 양/음은0선 기준, bundle 배열 인덱스0은startDay", "verification": "표현 모델 + Unity 화면", "executionStatus": "NOT_RUN"},
+    {"id": "G02", "task": "NEXT-D01", "owners": ["D", "C"], "setup": "exampleInputs.graph의16~30일 미열람", "action": "막대/축/툴팁/0% 표식 검사", "expected": "미열람 실제값·0% 대체 없음, 알려진0과 잠금 구분, 서버 원본/타인뷰 접근 없음", "verification": "데이터 접근 검사 + 화면", "executionStatus": "NOT_RUN"},
+    {"id": "G03", "task": "NEXT-D01", "owners": ["D"], "setup": "주문 잠금 전/후 별도 상태", "action": "PLAYER_VIEW 뒤 MARKET_REVEAL 수신", "expected": "공개 전 열람 막대만, 공개 후31일 전체; 누적 수익률 추이는 별도 의미 유지", "verification": "이벤트 주입 + TCP 화면", "executionStatus": "NOT_RUN"},
+    {"id": "G04", "task": "NEXT-D01", "owners": ["D"], "setup": "서로 다른 Canvas 배율/화면 크기, 날짜0/30", "action": "양 끝 막대·툴팁·좌표 변환 확인", "expected": "끝점 잘림/날짜 밀림 없음, 0~30일 동일 매핑", "verification": "Unity PlayMode/마우스 확인", "executionStatus": "NOT_RUN"},
+    {"id": "I01", "task": "NEXT-D02", "owners": ["D"], "setup": "INVESTMENT, 합법 기업2개 선택, 미열람 날짜 포함", "action": "3일→8일 클릭, 25일→30일 클릭", "expected": "각각 보유5일 초안; 숨은 날짜도 선택 가능; 주문 확정 전 전송0회", "verification": "초안 검사 + 실제 hit test", "executionStatus": "NOT_RUN"},
+    {"id": "I02", "task": "NEXT-D02", "owners": ["D", "B"], "setup": "exampleInputs.intervals", "action": "허용/금지 날짜·겹침·접점·3개째 구간 입력", "expected": "기존5~10일/최대2개/접점허용 규칙 일치; 거절이 기존 구간을 변경하지 않음", "verification": "초안 + 실제 B 주문 검증", "executionStatus": "NOT_RUN"},
+    {"id": "I03", "task": "NEXT-D02", "owners": ["D"], "setup": "진입 후보1개와 다른 완성 구간1개", "action": "우클릭/취소 버튼, 완성 구간 삭제, 다시 선택", "expected": "진행 중 후보만 취소, 지정 완성 구간만 삭제, 재선택 가능, 서버 주문 변화 없음", "verification": "상태 전이 + 화면", "executionStatus": "NOT_RUN"},
+    {"id": "I04", "task": "NEXT-D02", "owners": ["D", "B"], "setup": "완성 초안 → 전송대기 → 서버 잠금/단계변경", "action": "각 상태에서 클릭·삭제·중복 확정", "expected": "초안만 편집 가능; pending/잠금/단계종료 후 편집 차단; 기존 명령1회와 서버 최종 검증", "verification": "컨트롤러 + 서비스 통합", "executionStatus": "NOT_RUN"},
+    {"id": "I05", "task": "NEXT-D02", "owners": ["D", "B"], "setup": "UI 재생성/기업 순서변경/턴 전환/재접속", "action": "현재 초안과 서버 본인 주문을 갱신", "expected": "잘못된 기업/턴으로 후보가 남지 않고 확정 주문 우선; 첫 확정 클릭 유실 없음; 비중 순서 유지", "verification": "Unity 입력 + 상태 회귀", "executionStatus": "NOT_RUN"},
+    {"id": "S01", "task": "NEXT-D03", "owners": ["D"], "setup": "6기업 이미지 매핑, 1개 이미지 누락", "action": "정보/선택 카드 표시·클릭", "expected": "기업명+이미지/대체표시, 올바른 기존companyId 전송, 누락 에셋으로 동작 중단 없음", "verification": "카탈로그 + 화면", "executionStatus": "NOT_RUN"},
+    {"id": "S02", "task": "NEXT-D04", "owners": ["D", "A", "B"], "setup": "내 선택 차례, 빈 자리 기업", "action": "후보선택→취소→다른 후보→확정", "expected": "취소까지 명령0회·잔석/차례불변, 확정1회 성공 후만 잔석감소/차례전진; 서버 확정 취소를 뜻하지 않음", "verification": "명령 캡처 + A/B 원장", "executionStatus": "NOT_RUN"},
+    {"id": "S03", "task": "NEXT-D04", "owners": ["D", "A"], "setup": "후보 존재, 4초 마감/다음 차례/자동 선택", "action": "상태 갱신과 확정 재클릭", "expected": "후보폐기·만료확정차단, 서버 자동선택 우선, pending 중복없음", "verification": "가짜 시계 + Unity 버튼", "executionStatus": "NOT_RUN"},
+    {"id": "S04", "task": "NEXT-D04", "owners": ["D", "B"], "setup": "exampleInputs.seats 및 공개/개인 메시지 도착순서 교차", "action": "자리2칸 표시·정원마감·실패 선택", "expected": "예시의 빈칸/내확정/익명선점 수 일치, 정원마감 선택 불가·실패무변경, 타인명단 공개없음", "verification": "상태 도출 + 실제 TCP", "executionStatus": "NOT_RUN"},
+    {"id": "B01", "task": "NEXT-A02", "owners": ["A", "C"], "setup": "BOT 코인3개, 무료2묶음, 보통 난이도", "action": "INFO 평가→구매→응답→재평가→완료", "expected": "미열람만 구매, 예산최대2/잔액이내, 개인뷰 반영 후 평가, 구매대기 중 완료/추가구매 없음", "verification": "실제 C + BOT 상태기계", "executionStatus": "NOT_RUN"},
+    {"id": "B02", "task": "NEXT-A02", "owners": ["A", "C"], "setup": "개인뷰/공개상태/seed 고정, 서버의 미열람값만 다른 시장2개", "action": "BOT 전략 입력/행동 비교", "expected": "행동동일, 원본시장/타인구매/정답fixture 접근없음", "verification": "정책 격리 + 의존성 검토", "executionStatus": "NOT_RUN"},
+    {"id": "B03", "task": "NEXT-A02", "owners": ["A", "C"], "setup": "같은seed/정원, 알려진 끝점 중 하나를 바꾸면 우위가 역전되는 후보2개", "action": "보통/어려움의 구매 전후 평가·기업/구간 선택 비교", "expected": "변화율 차이에 따른 평가/선택 변화; 고정ReplayPicks/10→15 주문 아님", "verification": "순수 정책 입력→출력", "executionStatus": "NOT_RUN"},
+    {"id": "B04", "task": "NEXT-A03", "owners": ["A", "D"], "setup": "같은개인뷰/seed, 쉬움/보통/어려움, 방장 대기실", "action": "난이도변경→기존/신규BOT 적용→게임시작", "expected": "구매한도1/2/3·구간탐색범위 차이, 같은조건 재현, 추가권한/코인없음, 시작후설정고정", "verification": "정책 + 대기실 UI/TCP", "executionStatus": "NOT_RUN"},
+    {"id": "B05", "task": "NEXT-A02", "owners": ["A", "B"], "setup": "정원마감/본인중복/합법구간1개 또는2개가 있는 개인뷰", "action": "차례별기업선택과 주문 생성", "expected": "중복없는2기업, 비중합10000, 기업당1~2개 합법비중복구간; 기존 B가 승인", "verification": "정책 + 실제 B 검증", "executionStatus": "NOT_RUN"},
+    {"id": "B06", "task": "NEXT-A02", "owners": ["A", "C", "B"], "setup": "코인부족/이미열람/시장실패/동일응답재전송/마감임박", "action": "구매/선택/주문 실패와 응답을 주입", "expected": "무한반복·중복차감·중복주문없음, 기한내완료 또는 서버 기본행동으로 진행", "verification": "오류 주입 + TCP 회귀", "executionStatus": "NOT_RUN"},
+    {"id": "B07", "task": "NEXT-A02", "owners": ["A", "B"], "setup": "합법 구간의 양 끝점이 알려진 후보가 없음", "action": "기업 선택/주문 마감까지 실행", "expected": "미열람0취급/정답조회없음, 공개 상태만으로 합법 선택·50:50/각0→5 기본주문 등 안전한fallback, 정상정산", "verification": "순수 정책 + 실제 B 흐름", "executionStatus": "NOT_RUN"},
+    {"id": "R01", "task": "NEXT-INTEGRATION", "owners": ["A", "B", "C", "D"], "setup": "기존 fixed fixture 주문, 신규 문서/기능 통합", "action": "fixture검사·패키지검사·AValidation·기존Unity회귀", "expected": "기준 P1=14280/P4=12750/P2=11080/P3=8900, 기존구매격리/불변성/재전송유지; 새BOT주문은 별도기대값", "verification": "기존 전체 회귀", "executionStatus": "NOT_RUN"},
+    {"id": "R02", "task": "NEXT-INTEGRATION", "owners": ["A", "B", "C", "D"], "setup": "방2개 동일P1 및 서비스2턴 직접시작", "action": "구매/정산/과거조회/반환값수정/늦은응답", "expected": "방/턴격리·이월·과거읽기·복사원본보존, 과거구매로새턴열람불가; A의복수턴완료주장과구분", "verification": "실제 B/C + UI 상태", "executionStatus": "NOT_RUN"},
+    {"id": "R03", "task": "NEXT-INTEGRATION", "owners": ["A", "B", "C", "D"], "setup": "사람1+BOT3/사람2+BOT2/사람4, 실제TCP", "action": "접속→준비→90초정보/조기완료→선택→마우스주문→공개→정산→종료", "expected": "호스트도같은경로·개인정보격리·자리/주문정상·중복없음; 독립PC/빌드는환경별별도기록", "verification": "로컬TCP+Unity화면, 이후 실제PC/빌드", "executionStatus": "NOT_RUN"}
+  ]
+}

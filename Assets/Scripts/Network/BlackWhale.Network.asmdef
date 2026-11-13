@@ -1,0 +1,5 @@
+{
+  "name": "BlackWhale.Network",
+  "rootNamespace": "BlackWhale.Network",
+  "references": ["BlackWhale.Shared", "BlackWhale.Flow"]
+}

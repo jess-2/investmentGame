@@ -1,0 +1,7 @@
+{
+    "name": "BlackWhale.Information.Tests.Editor",
+    "references": ["BlackWhale.Information", "BlackWhale.Shared", "BlackWhale.Rules.Market"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": false
+}

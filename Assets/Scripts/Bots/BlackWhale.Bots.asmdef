@@ -1,0 +1,7 @@
+{
+    "name": "BlackWhale.Bots",
+    "rootNamespace": "BlackWhale.Bots",
+    "references": ["BlackWhale.Shared"],
+    "autoReferenced": true,
+    "noEngineReferences": true
+}

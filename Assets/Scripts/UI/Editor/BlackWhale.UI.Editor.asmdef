@@ -1,0 +1,20 @@
+{
+    "name": "BlackWhale.UI.Editor",
+    "rootNamespace": "BlackWhale.UI.EditorTools",
+    "references": [
+        "BlackWhale.UI.Dev",
+        "BlackWhale.Rules.Market",
+        "BlackWhale.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
