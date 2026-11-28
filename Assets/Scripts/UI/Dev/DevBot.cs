@@ -96,6 +96,7 @@ namespace BlackWhale.UI.Dev
                 if (controller.Store.HasPending(StockRules.Position)) return;
                 foreach (var id in strategy.RankStockCompanies(view, s))
                 {
+                    var holding = view.portfolio.holdings.First(h => h.companyId == id);
                     var supply = s.shareMarket.First(c => c.companyId == holding.companyId);
                     var company = view.companies.First(c => c.companyId == holding.companyId);
                     var days = InformationWindowRules.KnownDays(company);
